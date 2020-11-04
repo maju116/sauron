@@ -1,6 +1,6 @@
 Package: sauron
 Type: Package
-Title: XAI for tensorflow/keras models.
+Title: XAI for tensorflow/keras models
 Version: 0.1.1
 Authors@R: person("Michał", "Maj", email = "michalmaj116@gmail.com", role = c("aut", "cre"))
 Maintainer: Michał Maj <michalmaj116@gmail.com>
