@@ -10,15 +10,15 @@
 #' @export
 get_input_output_gradients <- function(model, input_imgs, class_index = NULL) {
   images <-  tf$cast(input_imgs, tf$float32)
-  if (is.null(class_index)) {
-    preds <- model$predict(images)
-    class_index <- which.max(preds)
-  }
 
   with(tf$GradientTape() %as% t, {
     t$watch(images)
     preds <- model(images)
-    top_class <- preds[ , class_index]
+    if (is.null(class_index)) {
+      top_class <- tf$math$reduce_max(preds, axis = as.integer(1))
+    } else {
+      top_class <- preds[ , class_index]
+    }
   })
   t$gradient(top_class, images)
 }
