@@ -3,6 +3,7 @@
 export(get_input_output_gradients)
 export(gradient_x_input)
 export(per_image_standardization)
+export(smooth_grad)
 export(transform_rgb_images_to_grayscale)
 export(vanilla_gradient)
 import(keras)
