@@ -28,6 +28,7 @@ get_input_output_gradients <- function(model, input_imgs, class_index = NULL) {
 #' @import tensorflow
 #' @param rgb_images RGB images.
 #' @return Grayscale images.
+#' @export
 transform_rgb_images_to_grayscale <- function(rgb_images) {
   tf$reduce_sum(rgb_images, axis = as.integer(-1))
 }
@@ -37,6 +38,7 @@ transform_rgb_images_to_grayscale <- function(rgb_images) {
 #' @import tensorflow
 #' @param images Images.
 #' @return Standardized images.
+#' @export
 per_image_standardization <- function(images) {
   tf$cast(
     255 * tf$image$per_image_standardization(images), tf$uint8
