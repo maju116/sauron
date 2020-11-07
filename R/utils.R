@@ -42,7 +42,6 @@ get_model_predictions_based_on_indexes <- function(preds, class_index) {
 #' @return Gradient between input and output layers.
 #' @export
 get_input_output_gradients <- function(model, input_imgs, class_index) {
-  check_class_indexes(input_imgs, class_index)
   images <-  tf$cast(input_imgs, tf$float32)
 
   with(tf$GradientTape() %as% t, {
@@ -108,7 +107,9 @@ calculate_smoothed_gradients <- function(model, input_imgs, preprocessing_functi
     noised_imgs <- preprocessing_function(noised_imgs)
   }
 
-  if (is.null(class_index)) {
+  if (length(class_index > 1)) {
+    class_index <- rep(class_index, each = num_samples)
+  } else if (is.null(class_index)) {
     preds <- model(tf$cast(input_imgs, tf$float32))
     class_index <- tf$argmax(preds, axis = as.integer(1))$numpy()
     class_index <- rep(class_index, each = num_samples)

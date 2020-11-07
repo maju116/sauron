@@ -13,6 +13,7 @@
 vanilla_gradient <- function(model, input_imgs, preprocessing_function = NULL,
                              class_index = NULL, absolute_values = TRUE,
                              grayscale = TRUE, standardize = TRUE) {
+  check_class_indexes(input_imgs, class_index)
   if (!is.null(preprocessing_function)) {
     input_imgs <- preprocessing_function(input_imgs)
   }
