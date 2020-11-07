@@ -15,6 +15,7 @@
 smooth_grad <- function(model, input_imgs, preprocessing_function = NULL,
                         class_index = NULL, num_samples = 5, noise_sd = 0.1,
                         absolute_values = TRUE, grayscale = TRUE, standardize = TRUE) {
+  check_class_indexes(input_imgs, class_index)
   smooth_gradients <- calculate_smoothed_gradients(model, input_imgs, preprocessing_function,
                                                    class_index, num_samples, noise_sd)
   if (absolute_values) smooth_gradients <- tf$abs(smooth_gradients)
