@@ -1,7 +1,7 @@
 Package: sauron
 Type: Package
 Title: XAI for tensorflow/keras models
-Version: 0.1.1
+Version: 0.1.0
 Authors@R: person("Michał", "Maj", email = "michalmaj116@gmail.com", role = c("aut", "cre"))
 Maintainer: Michał Maj <michalmaj116@gmail.com>
 Description: Explainable artificial intelligence (XAI) methods for Convolutional Neutral Networks in tensorflow/keras.
