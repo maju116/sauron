@@ -59,7 +59,7 @@ get_input_output_gradients <- function(model, input_imgs, class_index) {
 #' @return Grayscale images.
 #' @export
 transform_rgb_images_to_grayscale <- function(rgb_images) {
-  tf$reduce_sum(rgb_images, axis = as.integer(-1))
+  tf$expand_dims(tf$reduce_sum(rgb_images, axis = as.integer(-1)), axis = as.integer(-1))
 }
 
 #' Per image standardization.

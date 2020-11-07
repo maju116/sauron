@@ -7,7 +7,7 @@
 create_plot_data <- function(xy_axis, sample_image, grayscale) {
   if (grayscale) {
     cbind(xy_axis,
-          gray = as.vector(t(sample_image[, , 1])) / max(sample_image[, , 1]))
+          gray = as.vector(t(sample_image)) / max(sample_image))
   } else {
     cbind(xy_axis,
           r = as.vector(t(sample_image[, , 1])) / max(sample_image[, , 1]),
@@ -53,8 +53,7 @@ plot_explanations <- function(explanations, combine_plots = TRUE) {
     names(explanations) %>% map(~ {
       explanation_name <- .x
       sample_image <- explanations[[explanation_name]][idx, , , , drop = TRUE]
-      sample_image <- sample_image / max(sample_image)
-      grayscale <- dim(sample_image)[3] == 1
+      grayscale <- length(dim(sample_image)) == 2
       plot_data <- create_plot_data(xy_axis, sample_image, grayscale)
       base_plot <- plot_raster(plot_data, grayscale)
       if (idx == 1 | !combine_plots) {
