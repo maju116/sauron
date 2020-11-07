@@ -19,7 +19,11 @@ Imports:
     dplyr (>= 1.0.0),
     tibble (>= 3.0.1),
     purrr (>= 0.3.4),
-    ggplot2 (>= 3.3.1)
+    ggplot2 (>= 3.3.1),
+    abind (>= 1.4-5),
+    progress (>= 1.2.2),
+    RColorBrewer (>= 1.1-2),
+    gridExtra (>= 2.3)
 Suggests:
     testthat,
     lintr,
