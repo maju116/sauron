@@ -32,24 +32,24 @@ generate_explanations <- function(model, input_imgs_paths, target_size = c(299, 
       image_to_array() %>% array_reshape(dim = c(1, target_size, 3))
   }) %>% abind(along = 1)
 
-  explanations <- list()
+  explanations <- list(input_imgs = input_imgs)
   for (m in methods) {
     if (m == "V") {
-      explanations[m] <- vanilla_gradient(model, input_imgs, preprocessing_function,
+      explanations[[m]] <- vanilla_gradient(model, input_imgs, preprocessing_function,
                                           class_index, absolute_values, grayscale, standardize)
     } else if (m == "GI") {
-      explanations[m] <- gradient_x_input(model, input_imgs, preprocessing_function,
+      explanations[[m]] <- gradient_x_input(model, input_imgs, preprocessing_function,
                                           class_index, absolute_values, grayscale, standardize)
     } else if (m == "SG") {
-      explanations[m] <- smooth_grad(model, input_imgs, preprocessing_function,
+      explanations[[m]] <- smooth_grad(model, input_imgs, preprocessing_function,
                                      class_index, num_samples, noise_sd,
                                      absolute_values, grayscale, standardize)
     } else if (m == "SGI") {
-      explanations[m] <- smooth_grad(model, input_imgs, preprocessing_function,
+      explanations[[m]] <- smooth_grad(model, input_imgs, preprocessing_function,
                                      class_index, num_samples, noise_sd,
                                      absolute_values, grayscale, standardize)
     } else if (m == "IG") {
-      explanations[m] <- integrated_gradients(model, input_imgs, preprocessing_function,
+      explanations[[m]] <- integrated_gradients(model, input_imgs, preprocessing_function,
                                               class_index, steps,
                                               absolute_values, grayscale, standardize)
     }

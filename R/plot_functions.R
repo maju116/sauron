@@ -32,3 +32,22 @@ plot_raster <- function(plot_data, grayscale) {
   base_plot + guides(fill = FALSE) + scale_fill_identity() +
     theme_void() + geom_raster(hjust = 0, vjust = 0)
 }
+
+plot_explanations <- function(explanations) {
+  imgs_dim <- dim(explanations$input_imgs)
+  n_imgs <- imgs_dim[1]
+  h <- imgs_dim[2]
+  w <- imgs_dim[3]
+  xy_axis <- expand.grid(1:w, h:1) %>% rename(x = Var1, y = Var2)
+  explanation_plots <- 1:n_imgs %>% map(~ {
+    idx <- .x
+    names(explanations) %>% map(~ {
+      sample_image <- explanations[[.x]][idx, , , , drop = TRUE]
+      grayscale <- dim(sample_image)[3] == 1
+      plot_data <- create_plot_data(xy_axis, sample_image, grayscale)
+      plot_raster(plot_data, grayscale)
+    })
+  }) %>% unlist(recursive = FALSE) %>%
+    set_names(rep(names(explanations), n_imgs))
+  do.call("grid.arrange", c(explanation_plots, nrow = n_imgs))
+}
