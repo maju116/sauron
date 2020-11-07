@@ -16,7 +16,7 @@ smooth_grad_x_input <- function(model, input_imgs, preprocessing_function = NULL
                         class_index = NULL, num_samples = 5, noise_sd = 0.1,
                         absolute_values = TRUE, grayscale = TRUE, standardize = TRUE) {
   smooth_gradients <- calculate_smoothed_gradients(model, input_imgs, preprocessing_function,
-                                                   class_index, num_samples)
+                                                   class_index, num_samples, noise_sd)
   if (!is.null(preprocessing_function)) {
     input_imgs <- preprocessing_function(input_imgs)
   }
