@@ -4,12 +4,12 @@
 \alias{get_input_output_gradients}
 \title{Calculates gradient between input and output layers.}
 \usage{
-get_input_output_gradients(model, input_imgs, class_index = NULL)
+get_input_output_gradients(model, input_imgs, class_index)
 }
 \arguments{
 \item{model}{Tensorflow model.}
 
-\item{input_imgs}{Input images if for of 4-D tensor.}
+\item{input_imgs}{Input images in form of 4-D tensor.}
 
 \item{class_index}{Class index. If set to `NULL` index with max predicted probability will be selected.}
 }
