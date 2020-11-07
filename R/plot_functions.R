@@ -33,7 +33,16 @@ plot_raster <- function(plot_data, grayscale) {
     theme_void() + geom_raster(hjust = 0, vjust = 0)
 }
 
-plot_explanations <- function(explanations) {
+#' Generates raster image.
+#' @description Generates raster image.
+#' @import ggplot2
+#' @importFrom dplyr rename
+#' @importFrom purrr set_names
+#' @param explanations Explanations.
+#' @param combine_plots Should images be combined.
+#' @return Raster image(s).
+#' @export
+plot_explanations <- function(explanations, combine_plots = TRUE) {
   imgs_dim <- dim(explanations$input_imgs)
   n_imgs <- imgs_dim[1]
   h <- imgs_dim[2]
@@ -42,12 +51,24 @@ plot_explanations <- function(explanations) {
   explanation_plots <- 1:n_imgs %>% map(~ {
     idx <- .x
     names(explanations) %>% map(~ {
-      sample_image <- explanations[[.x]][idx, , , , drop = TRUE]
+      explanation_name <- .x
+      sample_image <- explanations[[explanation_name]][idx, , , , drop = TRUE]
+      sample_image <- sample_image / max(sample_image)
       grayscale <- dim(sample_image)[3] == 1
       plot_data <- create_plot_data(xy_axis, sample_image, grayscale)
-      plot_raster(plot_data, grayscale)
+      base_plot <- plot_raster(plot_data, grayscale)
+      if (idx == 1 | !combine_plots) {
+        base_plot + ggtitle(explanation_name) +
+          theme(plot.title = element_text(hjust = 0.5))
+      } else {
+        base_plot
+      }
     })
   }) %>% unlist(recursive = FALSE) %>%
     set_names(rep(names(explanations), n_imgs))
-  do.call("grid.arrange", c(explanation_plots, nrow = n_imgs))
+  if (combine_plots) {
+    do.call("grid.arrange", c(explanation_plots, nrow = n_imgs))
+  } else {
+    explanation_plots
+  }
 }
