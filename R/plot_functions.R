@@ -36,7 +36,7 @@ plot_raster <- function(plot_data, grayscale) {
 #' Generates raster image.
 #' @description Generates raster image.
 #' @import ggplot2
-#' @importFrom dplyr rename
+#' @importFrom dplyr rename filter pull
 #' @importFrom purrr set_names
 #' @importFrom gridExtra grid.arrange
 #' @param explanations Explanations.
@@ -44,7 +44,7 @@ plot_raster <- function(plot_data, grayscale) {
 #' @return Raster image(s).
 #' @export
 plot_explanations <- function(explanations, combine_plots = TRUE) {
-  imgs_dim <- dim(explanations$input_imgs)
+  imgs_dim <- dim(explanations$Input)
   n_imgs <- imgs_dim[1]
   h <- imgs_dim[2]
   w <- imgs_dim[3]
@@ -58,7 +58,14 @@ plot_explanations <- function(explanations, combine_plots = TRUE) {
       plot_data <- create_plot_data(xy_axis, sample_image, grayscale)
       base_plot <- plot_raster(plot_data, grayscale)
       if (idx == 1 | !combine_plots) {
-        base_plot + ggtitle(explanation_name) +
+        plot_title <- if (explanation_name %in% sauron_available_methods$method) {
+          sauron_available_methods %>%
+            filter(method == explanation_name) %>%
+            pull(name)
+        } else {
+          explanation_name
+        }
+        base_plot + ggtitle(plot_title) +
           theme(plot.title = element_text(hjust = 0.5))
       } else {
         base_plot

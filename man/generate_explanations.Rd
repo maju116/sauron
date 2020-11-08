@@ -9,7 +9,7 @@ generate_explanations(
   input_imgs_paths,
   preprocessing_function = NULL,
   class_index = NULL,
-  methods = available_methods,
+  methods = sauron_available_methods$method,
   num_samples = 5,
   noise_sd = 0.1,
   steps = 20,

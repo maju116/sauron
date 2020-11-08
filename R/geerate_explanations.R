@@ -1,7 +1,15 @@
-#' Acronyms for available explanation methods.
-#' @description Acronyms for available explanation methods.
+#' Acronyms and names for available explanation methods.
+#' @description Acronyms and names for available explanation methods.
+#' @import tibble
 #' @export
-available_methods <- c("V", "GI", "SG", "SGI", "IG")
+sauron_available_methods <- tibble::tibble(
+  method = c("V", "GI", "SG", "SGI", "IG"),
+  name = c("Vanilla gradient",
+           "Gradient x Input",
+           "SmoothGrad",
+           "SmoothGrad x Input",
+           "Integrated Gradients")
+)
 
 #' Generates explanations for images.
 #' @description Generates explanations for images.
@@ -20,37 +28,38 @@ available_methods <- c("V", "GI", "SG", "SGI", "IG")
 #' @return Explanations for images.
 #' @export
 generate_explanations <- function(model, input_imgs_paths,
-                              preprocessing_function = NULL,
-                              class_index = NULL, methods = available_methods,
-                              num_samples = 5, noise_sd = 0.1, steps = 20,
-                              absolute_values = TRUE,
-                              grayscale = TRUE) {
-  target_size <- unlist(model$input$get_shape()$as_list())[1:2]
+                                  preprocessing_function = NULL,
+                                  class_index = NULL,
+                                  methods = sauron_available_methods$method,
+                                  num_samples = 5, noise_sd = 0.1, steps = 20,
+                                  absolute_values = TRUE,
+                                  grayscale = TRUE) {
+  target_size <- unlist(model$input$get_shape()$as_list())
   input_imgs <- input_imgs_paths %>% map(~ {
-    image_load(., target_size = target_size) %>%
-      image_to_array() %>% array_reshape(dim = c(1, target_size, 3))
+    image_load(., target_size = target_size[1:2]) %>%
+      image_to_array() %>% array_reshape(dim = c(1, target_size))
   }) %>% abind(along = 1)
 
-  explanations <- list(input_imgs = input_imgs)
+  explanations <- list(Input = input_imgs)
   for (m in methods) {
     if (m == "V") {
       explanations[[m]] <- vanilla_gradient(model, input_imgs, preprocessing_function,
-                                          class_index, absolute_values, grayscale, TRUE)
+                                            class_index, absolute_values, grayscale, TRUE)
     } else if (m == "GI") {
       explanations[[m]] <- gradient_x_input(model, input_imgs, preprocessing_function,
-                                          class_index, absolute_values, grayscale, TRUE)
+                                            class_index, absolute_values, grayscale, TRUE)
     } else if (m == "SG") {
       explanations[[m]] <- smooth_grad(model, input_imgs, preprocessing_function,
-                                     class_index, num_samples, noise_sd,
-                                     absolute_values, grayscale, TRUE)
+                                       class_index, num_samples, noise_sd,
+                                       absolute_values, grayscale, TRUE)
     } else if (m == "SGI") {
       explanations[[m]] <- smooth_grad(model, input_imgs, preprocessing_function,
-                                     class_index, num_samples, noise_sd,
-                                     absolute_values, grayscale, TRUE)
+                                       class_index, num_samples, noise_sd,
+                                       absolute_values, grayscale, TRUE)
     } else if (m == "IG") {
       explanations[[m]] <- integrated_gradients(model, input_imgs, preprocessing_function,
-                                              class_index, steps,
-                                              absolute_values, grayscale, TRUE)
+                                                class_index, steps,
+                                                absolute_values, grayscale, TRUE)
     }
   }
   explanations
