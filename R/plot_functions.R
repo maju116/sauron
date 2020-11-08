@@ -38,6 +38,7 @@ plot_raster <- function(plot_data, grayscale) {
 #' @import ggplot2
 #' @importFrom dplyr rename
 #' @importFrom purrr set_names
+#' @importFrom gridExtra grid.arrange
 #' @param explanations Explanations.
 #' @param combine_plots Should images be combined.
 #' @return Raster image(s).
