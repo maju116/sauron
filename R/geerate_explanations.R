@@ -3,12 +3,13 @@
 #' @import tibble
 #' @export
 sauron_available_methods <- tibble::tibble(
-  method = c("V", "GI", "SG", "SGI", "IG"),
+  method = c("V", "GI", "SG", "SGI", "IG", "GB"),
   name = c("Vanilla gradient",
            "Gradient x Input",
            "SmoothGrad",
            "SmoothGrad x Input",
-           "Integrated Gradients")
+           "Integrated Gradients",
+           "Guided Backpropagation")
 )
 
 #' Generates explanations for images.
@@ -60,6 +61,9 @@ generate_explanations <- function(model, input_imgs_paths,
       explanations[[m]] <- integrated_gradients(model, input_imgs, preprocessing_function,
                                                 class_index, steps,
                                                 absolute_values, grayscale, TRUE)
+    } else if (m == "GB") {
+      explanations[[m]] <- guided_backpropagation(model, input_imgs, preprocessing_function,
+                                            class_index, absolute_values, grayscale, TRUE)
     }
   }
   explanations
