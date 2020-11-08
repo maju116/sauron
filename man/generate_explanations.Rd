@@ -7,7 +7,6 @@
 generate_explanations(
   model,
   input_imgs_paths,
-  target_size = c(299, 299),
   preprocessing_function = NULL,
   class_index = NULL,
   methods = available_methods,
@@ -15,16 +14,13 @@ generate_explanations(
   noise_sd = 0.1,
   steps = 20,
   absolute_values = TRUE,
-  grayscale = TRUE,
-  standardize = TRUE
+  grayscale = TRUE
 )
 }
 \arguments{
 \item{model}{Tensorflow model.}
 
 \item{input_imgs_paths}{Input images paths.}
-
-\item{target_size}{Input images target size.}
 
 \item{preprocessing_function}{Preprocessing function. Default to `NULL`.}
 
@@ -41,8 +37,6 @@ generate_explanations(
 \item{absolute_values}{Boolean. If `TRUE` absolute values of gradients will be returned.}
 
 \item{grayscale}{Boolean. Should gradients be converted from RGB to grayscale.}
-
-\item{standardize}{Boolean. Should gradients be standardized.}
 }
 \value{
 Explanations for images.
