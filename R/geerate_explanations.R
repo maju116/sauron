@@ -3,13 +3,14 @@
 #' @import tibble
 #' @export
 sauron_available_methods <- tibble::tibble(
-  method = c("V", "GI", "SG", "SGI", "IG", "GB"),
+  method = c("V", "GI", "SG", "SGI", "IG", "GB", "OCC"),
   name = c("Vanilla gradient",
            "Gradient x Input",
            "SmoothGrad",
            "SmoothGrad x Input",
            "Integrated Gradients",
-           "Guided Backpropagation")
+           "Guided Backpropagation",
+           "Occlusion Sensitivity")
 )
 
 #' Generates explanations for images.

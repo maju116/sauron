@@ -5,7 +5,10 @@
 #' @param grayscale Should images be plotted in grayscale.
 #' @return  `data.frame` with raster data.
 create_plot_data <- function(xy_axis, sample_image, grayscale) {
-  if (grayscale) {
+  if (is.na(grayscale)) {
+    cbind(xy_axis,
+          prob = as.vector(t(sample_image)))
+  } else if (grayscale) {
     cbind(xy_axis,
           gray = as.vector(t(sample_image)) / max(sample_image))
   } else {
@@ -24,7 +27,9 @@ create_plot_data <- function(xy_axis, sample_image, grayscale) {
 #' @param grayscale Should images be plotted in grayscale.
 #' @return  Raster image.
 plot_raster <- function(plot_data, grayscale) {
-  base_plot <- if (grayscale) {
+  base_plot <- if (is.na(grayscale)) {
+    ggplot(plot_data, aes(x, y, fill = prob * 255))
+  } else if (grayscale) {
     ggplot(plot_data, aes(x, y, fill = gray(gray)))
   } else {
     ggplot(plot_data, aes(x, y, fill = rgb(r, g, b)))
@@ -33,15 +38,15 @@ plot_raster <- function(plot_data, grayscale) {
     theme_void() + geom_raster(hjust = 0, vjust = 0)
 }
 
-#' Generates raster image.
-#' @description Generates raster image.
+#' Generates raster image(s) with explanations.
+#' @description Generates raster image(s) with explanations.
 #' @import ggplot2
 #' @importFrom dplyr rename filter pull
 #' @importFrom purrr set_names
 #' @importFrom gridExtra grid.arrange
 #' @param explanations Explanations.
 #' @param combine_plots Should images be combined.
-#' @return Raster image(s).
+#' @return Raster image(s) with explanations.
 #' @export
 plot_explanations <- function(explanations, combine_plots = TRUE) {
   imgs_dim <- dim(explanations$Input)
