@@ -25,6 +25,7 @@ sauron_available_methods <- tibble::tibble(
 #' @param num_samples Number of noised samples per one image.
 #' @param noise_sd Gaussian noise standard deviation.
 #' @param steps Integration steps. Must be positive integer.
+#' @param patch_size Patch size. 2-D `integer` vector.
 #' @param absolute_values Boolean. If `TRUE` absolute values of gradients will be returned.
 #' @param grayscale Boolean. Should gradients be converted from RGB to grayscale.
 #' @return Explanations for images.
@@ -33,7 +34,8 @@ generate_explanations <- function(model, input_imgs_paths,
                                   preprocessing_function = NULL,
                                   class_index = NULL,
                                   methods = sauron_available_methods$method,
-                                  num_samples = 5, noise_sd = 0.1, steps = 20,
+                                  num_samples = 5, noise_sd = 0.1,
+                                  steps = 20, patch_size = c(50, 50),
                                   absolute_values = TRUE,
                                   grayscale = TRUE) {
   target_size <- unlist(model$input$get_shape()$as_list())
@@ -64,7 +66,10 @@ generate_explanations <- function(model, input_imgs_paths,
                                                 absolute_values, grayscale, TRUE)
     } else if (m == "GB") {
       explanations[[m]] <- guided_backpropagation(model, input_imgs, preprocessing_function,
-                                            class_index, absolute_values, grayscale, TRUE)
+                                                  class_index, absolute_values, grayscale, TRUE)
+    } else if (m == "OCC") {
+      explanations[[m]] <- occlusion(model, input_imgs, preprocessing_function,
+                                     class_index, patch_size)
     }
   }
   explanations

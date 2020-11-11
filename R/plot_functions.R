@@ -7,7 +7,7 @@
 create_plot_data <- function(xy_axis, sample_image, grayscale) {
   if (is.na(grayscale)) {
     cbind(xy_axis,
-          prob = as.vector(t(sample_image)))
+          confidence = as.vector(t(sample_image)))
   } else if (grayscale) {
     cbind(xy_axis,
           gray = as.vector(t(sample_image)) / max(sample_image))
@@ -27,15 +27,25 @@ create_plot_data <- function(xy_axis, sample_image, grayscale) {
 #' @param grayscale Should images be plotted in grayscale.
 #' @return  Raster image.
 plot_raster <- function(plot_data, grayscale) {
-  base_plot <- if (is.na(grayscale)) {
-    ggplot(plot_data, aes(x, y, fill = prob * 255))
-  } else if (grayscale) {
+  base_plot <- if (grayscale) {
     ggplot(plot_data, aes(x, y, fill = gray(gray)))
   } else {
     ggplot(plot_data, aes(x, y, fill = rgb(r, g, b)))
   }
   base_plot + guides(fill = FALSE) + scale_fill_identity() +
-    theme_void() + geom_raster(hjust = 0, vjust = 0)
+    theme_void() + geom_raster(hjust = 0, vjust = 0, interpolate = TRUE)
+}
+
+#' Generates heatmap image.
+#' @description Generates heatmap image.
+#' @import ggplot2
+#' @importFrom grDevices rgb gray
+#' @param plot_data `data.frame` with `x`, `y` coordinates and color values.
+#' @return  Heatmap image.
+plot_heatmap <- function(plot_data) {
+  ggplot(plot_data, aes(x, y, fill = confidence)) +
+    theme_void() + geom_raster(hjust = 0, vjust = 0, interpolate = TRUE) +
+    scale_fill_gradient(low = "blue", high = "red")
 }
 
 #' Generates raster image(s) with explanations.
@@ -59,9 +69,17 @@ plot_explanations <- function(explanations, combine_plots = TRUE) {
     names(explanations) %>% map(~ {
       explanation_name <- .x
       sample_image <- explanations[[explanation_name]][idx, , , , drop = TRUE]
-      grayscale <- length(dim(sample_image)) == 2
+      grayscale <- if (explanation_name != "OCC") {
+        length(dim(sample_image)) == 2
+      } else {
+        NA
+      }
       plot_data <- create_plot_data(xy_axis, sample_image, grayscale)
-      base_plot <- plot_raster(plot_data, grayscale)
+      base_plot <- if (!is.na(grayscale)) {
+        plot_raster(plot_data, grayscale)
+      } else {
+        plot_heatmap(plot_data)
+      }
       if (idx == 1 | !combine_plots) {
         plot_title <- if (explanation_name %in% sauron_available_methods$method) {
           sauron_available_methods %>%

@@ -1,17 +1,17 @@
 #' Calculates occlusion sensitivity for a CNN.
 #' @description Calculates occlusion sensitivity for a CNN.
 #' @import tensorflow
+#' @importFrom purrr pwalk
+#' @importFrom dplyr mutate rowwise
 #' @param model Tensorflow model.
 #' @param input_imgs Input images if for of 4-D tensor.
 #' @param preprocessing_function Preprocessing function. Default to `NULL`.
 #' @param class_index Class index. If set to `NULL` index with max predicted probability will be selected.
 #' @param patch_size Patch size. 2-D `integer` vector.
-#' @param difference_from_true Should true image prediction be subtracted from sensitivity.
 #' @return Occlusion sensitivity for a CNN.
 #' @export
 occlusion <- function(model, input_imgs, preprocessing_function = NULL,
-                      class_index = NULL, patch_size = c(50, 50),
-                      difference_from_true = TRUE) {
+                      class_index = NULL, patch_size = c(50, 50)) {
   check_class_indexes(input_imgs, class_index)
 
   n_imgs <- dim(input_imgs)[1]
@@ -38,15 +38,5 @@ occlusion <- function(model, input_imgs, preprocessing_function = NULL,
       preds_for_class <- get_model_predictions_based_on_indexes(preds, class_index)$numpy()
       sensitivity[ , h_start:h_end, w_start:w_end, 1] <<- preds_for_class
     })
-
-  if (difference_from_true) {
-    if (!is.null(preprocessing_function)) {
-      input_imgs <- preprocessing_function(input_imgs)
-    }
-    preds <- model(input_imgs)
-    preds_for_class <- get_model_predictions_based_on_indexes(preds, class_index)$numpy()
-    sensitivity - array(preds_for_class, dim = dim(sensitivity))
-  } else {
-    sensitivity
-  }
+  1 - sensitivity
 }

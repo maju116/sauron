@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_functions.R
 \name{plot_explanations}
 \alias{plot_explanations}
-\title{Generates raster image.}
+\title{Generates raster image(s) with explanations.}
 \usage{
 plot_explanations(explanations, combine_plots = TRUE)
 }
@@ -12,8 +12,8 @@ plot_explanations(explanations, combine_plots = TRUE)
 \item{combine_plots}{Should images be combined.}
 }
 \value{
-Raster image(s).
+Raster image(s) with explanations.
 }
 \description{
-Generates raster image.
+Generates raster image(s) with explanations.
 }
