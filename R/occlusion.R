@@ -13,6 +13,13 @@
 occlusion <- function(model, input_imgs, preprocessing_function = NULL,
                       class_index = NULL, patch_size = c(50, 50)) {
   check_class_indexes(input_imgs, class_index)
+  if (is.null(class_index)) {
+    if (!is.null(preprocessing_function)) {
+      input_imgs_temp <- preprocessing_function(input_imgs)
+    }
+    preds <- model(input_imgs_temp)
+    class_index <- tf$math$argmax(preds, axis = as.integer(1))$numpy()
+  }
 
   n_imgs <- dim(input_imgs)[1]
   image_size <- dim(input_imgs)[2:3]
