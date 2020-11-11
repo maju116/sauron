@@ -13,6 +13,7 @@ generate_explanations(
   num_samples = 5,
   noise_sd = 0.1,
   steps = 20,
+  patch_size = c(50, 50),
   absolute_values = TRUE,
   grayscale = TRUE
 )
@@ -33,6 +34,8 @@ generate_explanations(
 \item{noise_sd}{Gaussian noise standard deviation.}
 
 \item{steps}{Integration steps. Must be positive integer.}
+
+\item{patch_size}{Patch size. 2-D `integer` vector.}
 
 \item{absolute_values}{Boolean. If `TRUE` absolute values of gradients will be returned.}
 
