@@ -14,6 +14,7 @@ Depends:
     tensorflow (>= 2.2.0),
     keras (>= 2.3.0.0)
 Imports:
+    R6 (>= 2.5.0),
     reticulate (>= 1.16),
     magrittr (>= 1.5),
     dplyr (>= 1.0.0),

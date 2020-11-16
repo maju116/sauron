@@ -10,7 +10,51 @@ sauron_available_methods <- tibble::tibble(
            "SmoothGrad x Input",
            "Integrated Gradients",
            "Guided Backpropagation",
-           "Occlusion Sensitivity")
+           "Occlusion Sensitivity"),
+  model_type = "CNN"
+)
+
+#' Creates `CNNexplainer` object.
+#' @description Creates `CNNexplainer` object.
+#' @import R6
+#' @importFrom dplyr select filter
+#' @return `CNNexplainer` object.
+#' @export
+CNNexplainer <- R6::R6Class(
+  classname = "CNNexplainer",
+  public = list(
+    iput_data = NULL,
+    model = NULL,
+    preprocessing_function = NULL,
+    initialize = function(iput_data, model, preprocessing_function) {
+      self$iput_data <- iput_data
+      self$model <- model
+      self$preprocessing_function <- preprocessing_function
+    },
+    show_available_methods = function() {
+      private$available_methods
+    },
+    explain = function(class_index,
+                       methods,
+                       num_samples, noise_sd,
+                       steps, patch_size,
+                       absolute_values,
+                       grayscale) {
+      generate_cnn_explanations(self$model, self$iput_data,
+                                self$preprocessing_function,
+                                class_index,
+                                methods,
+                                num_samples, noise_sd,
+                                steps, patch_size,
+                                absolute_values,
+                                grayscale)
+    }
+  ),
+  private = list(
+    available_methods = sauron_available_methods %>%
+      filter(model_type == "CNN") %>%
+      dplyr::select(-model_type)
+  )
 )
 
 #' Generates explanations for images.
@@ -30,7 +74,7 @@ sauron_available_methods <- tibble::tibble(
 #' @param grayscale Boolean. Should gradients be converted from RGB to grayscale.
 #' @return Explanations for images.
 #' @export
-generate_explanations <- function(model, input_imgs_paths,
+generate_cnn_explanations <- function(model, input_imgs_paths,
                                   preprocessing_function = NULL,
                                   class_index = NULL,
                                   methods = sauron_available_methods$method,
