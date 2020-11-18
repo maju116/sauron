@@ -23,24 +23,40 @@ sauron_available_methods <- tibble::tibble(
 CNNexplainer <- R6::R6Class(
   classname = "CNNexplainer",
   public = list(
-    iput_data = NULL,
+    #' @field model Tensorflow model.
     model = NULL,
+    #' @field preprocessing_function Image preprocessing function.
     preprocessing_function = NULL,
-    initialize = function(iput_data, model, preprocessing_function) {
-      self$iput_data <- iput_data
+    #' @description Initializes `CNNexplainer` object.
+    #' @param model Tensorflow model.
+    #' @param preprocessing_function Image preprocessing function.
+    initialize = function(model, preprocessing_function) {
       self$model <- model
       self$preprocessing_function <- preprocessing_function
     },
+    #' @description Prints available explanation methods.
     show_available_methods = function() {
       private$available_methods
     },
-    explain = function(class_index,
+    #' @description Generates explanations.
+    #' @param input_imgs_paths Input images paths.
+    #' @param class_index Class index. If set to `NULL` index with max predicted probability will be selected.
+    #' @param methods Methods to be calculated.
+    #' @param num_samples Number of noised samples per one image.
+    #' @param noise_sd Gaussian noise standard deviation.
+    #' @param steps Integration steps. Must be positive integer.
+    #' @param patch_size Patch size. 2-D `integer` vector.
+    #' @param absolute_values Boolean. If `TRUE` absolute values of gradients will be returned.
+    #' @param grayscale Boolean. Should gradients be converted from RGB to grayscale.
+    #' @return Explanations for images.
+    explain = function(input_imgs_paths,
+                       class_index,
                        methods,
                        num_samples, noise_sd,
                        steps, patch_size,
                        absolute_values,
                        grayscale) {
-      generate_cnn_explanations(self$model, self$iput_data,
+      generate_cnn_explanations(self$model, input_imgs_paths,
                                 self$preprocessing_function,
                                 class_index,
                                 methods,
