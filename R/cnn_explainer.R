@@ -10,7 +10,75 @@ sauron_available_methods <- tibble::tibble(
            "SmoothGrad x Input",
            "Integrated Gradients",
            "Guided Backpropagation",
-           "Occlusion Sensitivity")
+           "Occlusion Sensitivity"),
+  model_type = "CNN"
+)
+
+#' Creates `CNNexplainer` object.
+#' @description Creates `CNNexplainer` object.
+#' @import R6
+#' @importFrom dplyr select filter
+#' @return `CNNexplainer` object.
+#' @export
+CNNexplainer <- R6::R6Class(
+  classname = "CNNexplainer",
+  public = list(
+    #' @field model Tensorflow model.
+    model = NULL,
+    #' @field preprocessing_function Image preprocessing function.
+    preprocessing_function = NULL,
+    #' @description Initializes `CNNexplainer` object.
+    #' @param model Tensorflow model.
+    #' @param preprocessing_function Image preprocessing function.
+    initialize = function(model, preprocessing_function) {
+      self$model <- model
+      self$preprocessing_function <- preprocessing_function
+    },
+    #' @description Prints available explanation methods.
+    show_available_methods = function() {
+      private$available_methods
+    },
+    #' @description Generates explanations.
+    #' @param input_imgs_paths Input images paths.
+    #' @param class_index Class index. If set to `NULL` index with max predicted probability will be selected.
+    #' @param methods Methods to be calculated.
+    #' @param num_samples Number of noised samples per one image.
+    #' @param noise_sd Gaussian noise standard deviation.
+    #' @param steps Integration steps. Must be positive integer.
+    #' @param patch_size Patch size. 2-D `integer` vector.
+    #' @param absolute_values Boolean. If `TRUE` absolute values of gradients will be returned.
+    #' @param grayscale Boolean. Should gradients be converted from RGB to grayscale.
+    #' @return Explanations for images.
+    explain = function(input_imgs_paths,
+                       class_index,
+                       methods,
+                       num_samples, noise_sd,
+                       steps, patch_size,
+                       absolute_values,
+                       grayscale) {
+      generate_cnn_explanations(self$model, input_imgs_paths,
+                                self$preprocessing_function,
+                                class_index,
+                                methods,
+                                num_samples, noise_sd,
+                                steps, patch_size,
+                                absolute_values,
+                                grayscale)
+    },
+    #' @description Generates raster image(s) with explanations.
+    #' @param explanations Explanations.
+    #' @param combine_plots Should images be combined.
+    save_explanation_plots = function(explanations, combine_plots) {
+      save_cnn_explanation_plots(
+        create_cnn_explanation_plots(explanations),
+        combine_plots)
+    }
+  ),
+  private = list(
+    available_methods = sauron_available_methods %>%
+      filter(model_type == "CNN") %>%
+      dplyr::select(-model_type)
+  )
 )
 
 #' Generates explanations for images.
@@ -29,8 +97,7 @@ sauron_available_methods <- tibble::tibble(
 #' @param absolute_values Boolean. If `TRUE` absolute values of gradients will be returned.
 #' @param grayscale Boolean. Should gradients be converted from RGB to grayscale.
 #' @return Explanations for images.
-#' @export
-generate_explanations <- function(model, input_imgs_paths,
+generate_cnn_explanations <- function(model, input_imgs_paths,
                                   preprocessing_function = NULL,
                                   class_index = NULL,
                                   methods = sauron_available_methods$method,

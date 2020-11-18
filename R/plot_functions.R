@@ -52,23 +52,21 @@ plot_heatmap <- function(plot_data) {
 #' @description Generates raster image(s) with explanations.
 #' @import ggplot2
 #' @importFrom dplyr rename filter pull
-#' @importFrom purrr set_names
-#' @importFrom gridExtra grid.arrange
+#' @importFrom purrr imap
 #' @param explanations Explanations.
-#' @param combine_plots Should images be combined.
 #' @return Raster image(s) with explanations.
-#' @export
-plot_explanations <- function(explanations, combine_plots = TRUE) {
+create_cnn_explanation_plots <- function(explanations) {
   imgs_dim <- dim(explanations$Input)
   n_imgs <- imgs_dim[1]
   h <- imgs_dim[2]
   w <- imgs_dim[3]
   xy_axis <- expand.grid(1:w, h:1) %>% rename(x = Var1, y = Var2)
-  explanation_plots <- 1:n_imgs %>% map(~ {
-    idx <- .x
-    names(explanations) %>% map(~ {
-      explanation_name <- .x
-      sample_image <- explanations[[explanation_name]][idx, , , , drop = TRUE]
+  explanation_plots <- explanations %>% imap(~ {
+    explanation_name <- .y
+    current_explanation <- .x
+    1:n_imgs %>% map(~ {
+      idx <- .x
+      sample_image <- current_explanation[idx, , , , drop = TRUE]
       grayscale <- if (explanation_name != "OCC") {
         length(dim(sample_image)) == 2
       } else {
@@ -80,25 +78,45 @@ plot_explanations <- function(explanations, combine_plots = TRUE) {
       } else {
         plot_heatmap(plot_data)
       }
-      if (idx == 1 | !combine_plots) {
-        plot_title <- if (explanation_name %in% sauron_available_methods$method) {
-          sauron_available_methods %>%
-            filter(method == explanation_name) %>%
-            pull(name)
-        } else {
-          explanation_name
-        }
-        base_plot + ggtitle(plot_title) +
-          theme(plot.title = element_text(hjust = 0.5))
-      } else {
-        base_plot
-      }
+      base_plot
     })
-  }) %>% unlist(recursive = FALSE) %>%
-    set_names(rep(names(explanations), n_imgs))
+  })
+  explanation_plots
+}
+
+#' Plots raster image(s) with explanations.
+#' @description Generates raster image(s) with explanations.
+#' @importFrom gridExtra grid.arrange arrangeGrob
+#' @importFrom purrr iwalk
+#' @param explanation_plots Explanation plots.
+#' @param combine_plots Should images be combined.
+#' @export
+save_cnn_explanation_plots <- function(explanation_plots, combine_plots) {
   if (combine_plots) {
-    do.call("grid.arrange", c(explanation_plots, nrow = n_imgs))
+    ncol <- length(explanation_plots)
+    grobs <- explanation_plots %>% imap(~ {
+      explanation_name <- .y
+      if (explanation_name %in% sauron_available_methods$method) {
+        explanation_name <- sauron_available_methods %>%
+          filter(method == explanation_name) %>%
+          pull(name)
+      }
+      arrangeGrob(grobs = .x, top = explanation_name)
+    })
+    grid.arrange(grobs = grobs, ncol = ncol)
   } else {
-    explanation_plots
+    explanation_plots %>% iwalk(~ {
+      explanation_name <- .y
+      if (explanation_name %in% sauron_available_methods$method) {
+        explanation_name <- sauron_available_methods %>%
+          filter(method == explanation_name) %>%
+          pull(name)
+      }
+      .x %>% walk(~ {
+        base_plot <- .x
+        plot(base_plot + ggtitle(explanation_name) +
+               theme(plot.title = element_text(hjust = 0.5)))
+      })
+    })
   }
 }
