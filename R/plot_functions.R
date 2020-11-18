@@ -86,7 +86,7 @@ create_cnn_explanation_plots <- function(explanations) {
 
 #' Plots raster image(s) with explanations.
 #' @description Generates raster image(s) with explanations.
-#' @importFrom gridExtra grid.arrange
+#' @importFrom gridExtra grid.arrange arrangeGrob
 #' @importFrom purrr iwalk
 #' @param explanation_plots Explanation plots.
 #' @param combine_plots Should images be combined.
