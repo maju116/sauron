@@ -64,6 +64,14 @@ CNNexplainer <- R6::R6Class(
                                 steps, patch_size,
                                 absolute_values,
                                 grayscale)
+    },
+    #' @description Generates raster image(s) with explanations.
+    #' @param explanations Explanations.
+    #' @param combine_plots Should images be combined.
+    save_explanation_plots = function(explanations, combine_plots) {
+      save_cnn_explanation_plots(
+        create_cnn_explanation_plots(explanations),
+        combine_plots)
     }
   ),
   private = list(
@@ -89,7 +97,6 @@ CNNexplainer <- R6::R6Class(
 #' @param absolute_values Boolean. If `TRUE` absolute values of gradients will be returned.
 #' @param grayscale Boolean. Should gradients be converted from RGB to grayscale.
 #' @return Explanations for images.
-#' @export
 generate_cnn_explanations <- function(model, input_imgs_paths,
                                   preprocessing_function = NULL,
                                   class_index = NULL,
