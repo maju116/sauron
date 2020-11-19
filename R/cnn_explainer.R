@@ -14,6 +14,67 @@ sauron_available_methods <- tibble::tibble(
   model_type = "CNN"
 )
 
+#' Creates `CNNexplainers` object.
+#' @description Creates `CNNexplainers` object.
+#' @import R6
+#' @importFrom dplyr select filter
+#' @return `CNNexplainers` object.
+#' @export
+CNNexplainers <- R6::R6Class(
+  classname = "CNNexplainers",
+  public = list(
+    #' @field explainers List of `CNNexplainer` objects.
+    explainers = NULL,
+    #' @description Initializes `CNNexplainers` object.
+    #' @param explainers List of `CNNexplainer` objects.
+    initialize = function(explainers) {
+      if (explainers %>% map_lgl(~ !("CNNexplainer" %in% class(.))) %>% any()) {
+        stop("You can only pass objects of class 'CNNexplainer'.
+             Please check your 'explainers' list.")
+      }
+      self$explainers <- explainers
+    },
+    #' @description Prints available explanation methods.
+    show_available_methods = function() {
+      private$available_methods
+    },
+    #' @description Generates explanations.
+    #' @param input_imgs_paths Input images paths.
+    #' @param class_index Class index. If set to `NULL` index with max predicted probability will be selected.
+    #' @param methods Methods to be calculated.
+    #' @param num_samples Number of noised samples per one image.
+    #' @param noise_sd Gaussian noise standard deviation.
+    #' @param steps Integration steps. Must be positive integer.
+    #' @param patch_size Patch size. 2-D `integer` vector.
+    #' @param absolute_values Boolean. If `TRUE` absolute values of gradients will be returned.
+    #' @param grayscale Boolean. Should gradients be converted from RGB to grayscale.
+    #' @return Explanations for images.
+    explain = function(input_imgs_paths,
+                       class_index,
+                       methods,
+                       num_samples, noise_sd,
+                       steps, patch_size,
+                       absolute_values,
+                       grayscale) {
+      self$explainers %>% map(~ {
+        current_explainer <- .x
+        current_explainer$explain(input_imgs_paths,
+                                  class_index,
+                                  methods,
+                                  num_samples, noise_sd,
+                                  steps, patch_size,
+                                  absolute_values,
+                                  grayscale)
+      })
+    }
+  ),
+  private = list(
+    available_methods = sauron_available_methods %>%
+      filter(model_type == "CNN") %>%
+      dplyr::select(-model_type)
+  )
+)
+
 #' Creates `CNNexplainer` object.
 #' @description Creates `CNNexplainer` object.
 #' @import R6
