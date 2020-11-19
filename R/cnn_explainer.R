@@ -1,19 +1,3 @@
-#' Acronyms and names for available explanation methods.
-#' @description Acronyms and names for available explanation methods.
-#' @import tibble
-#' @export
-sauron_available_methods <- tibble::tibble(
-  method = c("V", "GI", "SG", "SGI", "IG", "GB", "OCC"),
-  name = c("Vanilla gradient",
-           "Gradient x Input",
-           "SmoothGrad",
-           "SmoothGrad x Input",
-           "Integrated Gradients",
-           "Guided Backpropagation",
-           "Occlusion Sensitivity"),
-  model_type = "CNN"
-)
-
 #' Creates `CNNexplainers` object.
 #' @description Creates `CNNexplainers` object.
 #' @import R6
@@ -69,9 +53,7 @@ CNNexplainers <- R6::R6Class(
     }
   ),
   private = list(
-    available_methods = sauron_available_methods %>%
-      filter(model_type == "CNN") %>%
-      dplyr::select(-model_type)
+    available_methods = filter_methods_by_network("CNN")
   )
 )
 
@@ -136,9 +118,7 @@ CNNexplainer <- R6::R6Class(
     }
   ),
   private = list(
-    available_methods = sauron_available_methods %>%
-      filter(model_type == "CNN") %>%
-      dplyr::select(-model_type)
+    available_methods = filter_methods_by_network("CNN")
   )
 )
 
@@ -161,7 +141,7 @@ CNNexplainer <- R6::R6Class(
 generate_cnn_explanations <- function(model, input_imgs_paths,
                                   preprocessing_function = NULL,
                                   class_index = NULL,
-                                  methods = sauron_available_methods$method,
+                                  methods = c("V", "GI", "SG", "SGI", "IG", "GB", "OCC"),
                                   num_samples = 5, noise_sd = 0.1,
                                   steps = 20, patch_size = c(50, 50),
                                   absolute_values = TRUE,

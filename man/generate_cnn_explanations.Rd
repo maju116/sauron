@@ -9,7 +9,7 @@ generate_cnn_explanations(
   input_imgs_paths,
   preprocessing_function = NULL,
   class_index = NULL,
-  methods = sauron_available_methods$method,
+  methods = c("V", "GI", "SG", "SGI", "IG", "GB", "OCC"),
   num_samples = 5,
   noise_sd = 0.1,
   steps = 20,

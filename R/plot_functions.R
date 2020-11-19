@@ -95,23 +95,13 @@ save_cnn_explanation_plots <- function(explanation_plots, combine_plots) {
   if (combine_plots) {
     ncol <- length(explanation_plots)
     grobs <- explanation_plots %>% imap(~ {
-      explanation_name <- .y
-      if (explanation_name %in% sauron_available_methods$method) {
-        explanation_name <- sauron_available_methods %>%
-          filter(method == explanation_name) %>%
-          pull(name)
-      }
+      explanation_name <- find_method_name(.y)
       arrangeGrob(grobs = .x, top = explanation_name)
     })
     grid.arrange(grobs = grobs, ncol = ncol)
   } else {
     explanation_plots %>% iwalk(~ {
-      explanation_name <- .y
-      if (explanation_name %in% sauron_available_methods$method) {
-        explanation_name <- sauron_available_methods %>%
-          filter(method == explanation_name) %>%
-          pull(name)
-      }
+      explanation_name <- find_method_name(.y)
       .x %>% walk(~ {
         base_plot <- .x
         plot(base_plot + ggtitle(explanation_name) +
