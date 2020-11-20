@@ -16,6 +16,7 @@ sauron_available_methods <- tibble::tibble(
 
 #' Filters available methods by type.
 #' @description Filters available methods by type.
+#' @param network_type Network type.
 #' @return Filtered `tibble` with available method for a network type.
 filter_methods_by_network <- function(network_type) {
   sauron_available_methods %>%

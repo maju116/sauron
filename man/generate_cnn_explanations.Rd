@@ -7,6 +7,7 @@
 generate_cnn_explanations(
   model,
   input_imgs_paths,
+  id,
   preprocessing_function = NULL,
   class_index = NULL,
   methods = c("V", "GI", "SG", "SGI", "IG", "GB", "OCC"),
@@ -22,6 +23,8 @@ generate_cnn_explanations(
 \item{model}{Tensorflow model.}
 
 \item{input_imgs_paths}{Input images paths.}
+
+\item{id}{Explainer id.}
 
 \item{preprocessing_function}{Preprocessing function. Default to `NULL`.}
 

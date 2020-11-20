@@ -80,12 +80,20 @@ CNNexplainer <- R6::R6Class(
     model = NULL,
     #' @field preprocessing_function Image preprocessing function.
     preprocessing_function = NULL,
+    #' @field id Explainer id.
+    id = NULL,
     #' @description Initializes `CNNexplainer` object.
     #' @param model Tensorflow model.
     #' @param preprocessing_function Image preprocessing function.
-    initialize = function(model, preprocessing_function) {
+    #' @param id Explainer id.
+    initialize = function(model, preprocessing_function, id = NULL) {
       self$model <- model
       self$preprocessing_function <- preprocessing_function
+      self$id <- if (is.null(id) || class(id) != "character" || id == "") {
+        paste0(sample(letters, 10), collapse = "")
+      } else {
+        id
+      }
     },
     #' @description Prints available explanation methods.
     show_available_methods = function() {
@@ -110,7 +118,7 @@ CNNexplainer <- R6::R6Class(
                        absolute_values,
                        grayscale) {
       generate_cnn_explanations(self$model, input_imgs_paths,
-                                self$preprocessing_function,
+                                self$id, self$preprocessing_function,
                                 class_index,
                                 methods,
                                 num_samples, noise_sd,
@@ -138,6 +146,7 @@ CNNexplainer <- R6::R6Class(
 #' @importFrom purrr map
 #' @param model Tensorflow model.
 #' @param input_imgs_paths Input images paths.
+#' @param id Explainer id.
 #' @param preprocessing_function Preprocessing function. Default to `NULL`.
 #' @param class_index Class index. If set to `NULL` index with max predicted probability will be selected.
 #' @param methods Methods to be calculated.
@@ -148,7 +157,7 @@ CNNexplainer <- R6::R6Class(
 #' @param absolute_values Boolean. If `TRUE` absolute values of gradients will be returned.
 #' @param grayscale Boolean. Should gradients be converted from RGB to grayscale.
 #' @return Explanations for images.
-generate_cnn_explanations <- function(model, input_imgs_paths,
+generate_cnn_explanations <- function(model, input_imgs_paths, id,
                                       preprocessing_function = NULL,
                                       class_index = NULL,
                                       methods = c("V", "GI", "SG", "SGI", "IG", "GB", "OCC"),
@@ -190,5 +199,6 @@ generate_cnn_explanations <- function(model, input_imgs_paths,
                                      class_index, patch_size)
     }
   }
+  attr(explanations, "id") <- id
   explanations
 }

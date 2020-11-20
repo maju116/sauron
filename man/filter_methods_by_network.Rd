@@ -6,6 +6,9 @@
 \usage{
 filter_methods_by_network(network_type)
 }
+\arguments{
+\item{network_type}{Network type.}
+}
 \value{
 Filtered `tibble` with available method for a network type.
 }

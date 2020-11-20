@@ -15,6 +15,8 @@ Creates `CNNexplainer` object.
 \item{\code{model}}{Tensorflow model.}
 
 \item{\code{preprocessing_function}}{Image preprocessing function.}
+
+\item{\code{id}}{Explainer id.}
 }
 \if{html}{\out{</div>}}
 }
@@ -34,7 +36,7 @@ Creates `CNNexplainer` object.
 \subsection{Method \code{new()}}{
 Initializes `CNNexplainer` object.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CNNexplainer$new(model, preprocessing_function)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CNNexplainer$new(model, preprocessing_function, id = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -43,6 +45,8 @@ Initializes `CNNexplainer` object.
 \item{\code{model}}{Tensorflow model.}
 
 \item{\code{preprocessing_function}}{Image preprocessing function.}
+
+\item{\code{id}}{Explainer id.}
 }
 \if{html}{\out{</div>}}
 }
