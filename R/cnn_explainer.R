@@ -10,13 +10,13 @@ CNNexplainers <- R6::R6Class(
     #' @field explainers List of `CNNexplainer` objects.
     explainers = NULL,
     #' @description Initializes `CNNexplainers` object.
-    #' @param explainers List of `CNNexplainer` objects.
-    initialize = function(explainers) {
-      if (explainers %>% map_lgl(~ !("CNNexplainer" %in% class(.))) %>% any()) {
+    #' @param ... `CNNexplainer` objects.
+    initialize = function(...) {
+      if (list(...) %>% map_lgl(~ !("CNNexplainer" %in% class(.))) %>% any()) {
         stop("You can only pass objects of class 'CNNexplainer'.
              Please check your 'explainers' list.")
       }
-      self$explainers <- explainers
+      self$explainers <- list(...)
     },
     #' @description Prints available explanation methods.
     show_available_methods = function() {
