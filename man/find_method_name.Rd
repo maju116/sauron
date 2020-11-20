@@ -4,10 +4,10 @@
 \alias{find_method_name}
 \title{Finds explanation method name.}
 \usage{
-find_method_name(method)
+find_method_name(method_acc)
 }
 \arguments{
-\item{method}{Method acronym.}
+\item{method_acc}{Method acronym.}
 }
 \value{
 Method full name.

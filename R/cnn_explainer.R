@@ -50,6 +50,16 @@ CNNexplainers <- R6::R6Class(
                                   absolute_values,
                                   grayscale)
       })
+    },
+    #' @description Generates raster image(s) with explanations.
+    #' @param explanations Explanations.
+    #' @param combine_plots Should images be combined.
+    save_explanation_plots = function(explanations, combine_plots) {
+      explanations %>% map(~ {
+        current_explanations <- .x
+        create_cnn_explanation_plots(current_explanations)
+      }) %>%
+        save_cnn_explanation_plots(combine_plots)
     }
   ),
   private = list(
@@ -139,13 +149,13 @@ CNNexplainer <- R6::R6Class(
 #' @param grayscale Boolean. Should gradients be converted from RGB to grayscale.
 #' @return Explanations for images.
 generate_cnn_explanations <- function(model, input_imgs_paths,
-                                  preprocessing_function = NULL,
-                                  class_index = NULL,
-                                  methods = c("V", "GI", "SG", "SGI", "IG", "GB", "OCC"),
-                                  num_samples = 5, noise_sd = 0.1,
-                                  steps = 20, patch_size = c(50, 50),
-                                  absolute_values = TRUE,
-                                  grayscale = TRUE) {
+                                      preprocessing_function = NULL,
+                                      class_index = NULL,
+                                      methods = c("V", "GI", "SG", "SGI", "IG", "GB", "OCC"),
+                                      num_samples = 5, noise_sd = 0.1,
+                                      steps = 20, patch_size = c(50, 50),
+                                      absolute_values = TRUE,
+                                      grayscale = TRUE) {
   target_size <- unlist(model$input$get_shape()$as_list())
   input_imgs <- input_imgs_paths %>% map(~ {
     image_load(., target_size = target_size[1:2]) %>%

@@ -84,6 +84,25 @@ create_cnn_explanation_plots <- function(explanations) {
   explanation_plots
 }
 
+#' Combines multimodel explanation plots.
+#' @description Combines multimodel explanation plots.
+#' @importFrom purrr pmap
+#' @param explanation_plots Explanation plots.
+#' @return Raster image(s) with explanations.
+combine_cnn_multimodel_explanation_plots <- function(explanation_plots) {
+  multimodel_explanations <- !("Input" %in% names(explanation_plots))
+  if (multimodel_explanations) {
+    n_models <- length(explanation_plots)
+    n_samples <- length(explanation_plots[[1]]$Input)
+    plots_order <- 1:n_samples %>%
+      map(~ seq(.x, n_models*n_samples, by = n_samples)) %>% unlist()
+    pmap(explanation_plots, c) %>%
+      map(~ .x[plots_order])
+  } else {
+    explanation_plots
+  }
+}
+
 #' Plots raster image(s) with explanations.
 #' @description Generates raster image(s) with explanations.
 #' @importFrom gridExtra grid.arrange arrangeGrob
@@ -93,10 +112,11 @@ create_cnn_explanation_plots <- function(explanations) {
 #' @export
 save_cnn_explanation_plots <- function(explanation_plots, combine_plots) {
   if (combine_plots) {
+    explanation_plots <- combine_cnn_multimodel_explanation_plots(explanation_plots)
     ncol <- length(explanation_plots)
     grobs <- explanation_plots %>% imap(~ {
       explanation_name <- find_method_name(.y)
-      arrangeGrob(grobs = .x, top = explanation_name)
+      arrangeGrob(grobs = .x, top = explanation_name, ncol = 1)
     })
     grid.arrange(grobs = grobs, ncol = ncol)
   } else {

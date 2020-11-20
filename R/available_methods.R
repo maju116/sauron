@@ -25,14 +25,14 @@ filter_methods_by_network <- function(network_type) {
 
 #' Finds explanation method name.
 #' @description Finds explanation method name.
-#' @param method Method acronym.
+#' @param method_acc Method acronym.
 #' @return Method full name.
-find_method_name <- function(method) {
-  if (method %in% sauron_available_methods$method) {
+find_method_name <- function(method_acc) {
+  if (method_acc %in% sauron_available_methods$method) {
     sauron_available_methods %>%
-      filter(method == method) %>%
+      dplyr::filter(method == method_acc) %>%
       pull(name)
   } else {
-    method
+    method_acc
   }
 }
