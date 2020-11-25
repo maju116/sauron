@@ -135,7 +135,7 @@ save_single_explanation_plots <- function(explanation_plots, output_path, model_
 #' Plots raster image(s) with explanations.
 #' @description Plots raster image(s) with explanations.
 #' @importFrom gridExtra grid.arrange arrangeGrob
-#' @importFrom purrr iwalk
+#' @importFrom purrr map_dbl walk map_chr
 #' @param explanation_plots Explanation plots.
 #' @param combine_plots Should images be combined.
 #' @param output_path Where to save explanation plots.
