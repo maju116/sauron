@@ -4,13 +4,22 @@
 \alias{save_cnn_explanation_plots}
 \title{Plots raster image(s) with explanations.}
 \usage{
-save_cnn_explanation_plots(explanation_plots, combine_plots)
+save_cnn_explanation_plots(
+  explanation_plots,
+  combine_plots,
+  output_path = NULL,
+  plot = TRUE
+)
 }
 \arguments{
 \item{explanation_plots}{Explanation plots.}
 
 \item{combine_plots}{Should images be combined.}
+
+\item{output_path}{Where to save explanation plots.}
+
+\item{plot}{Should explanation be plotted.}
 }
 \description{
-Generates raster image(s) with explanations.
+Plots raster image(s) with explanations.
 }
