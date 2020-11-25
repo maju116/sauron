@@ -113,7 +113,12 @@ Explanations for images.
 \subsection{Method \code{save_explanation_plots()}}{
 Generates raster image(s) with explanations.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CNNexplainer$save_explanation_plots(explanations, combine_plots)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CNNexplainer$save_explanation_plots(
+  explanations,
+  combine_plots,
+  output_path = NULL,
+  plot = TRUE
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -122,6 +127,10 @@ Generates raster image(s) with explanations.
 \item{\code{explanations}}{Explanations.}
 
 \item{\code{combine_plots}}{Should images be combined.}
+
+\item{\code{output_path}}{Where to save explanation plots.}
+
+\item{\code{plot}}{Should explanation be plotted.}
 }
 \if{html}{\out{</div>}}
 }

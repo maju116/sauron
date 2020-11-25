@@ -54,12 +54,15 @@ CNNexplainers <- R6::R6Class(
     #' @description Generates raster image(s) with explanations.
     #' @param explanations Explanations.
     #' @param combine_plots Should images be combined.
-    save_explanation_plots = function(explanations, combine_plots) {
+    #' @param output_path Where to save explanation plots.
+    #' @param plot Should explanation be plotted.
+    save_explanation_plots = function(explanations, combine_plots,
+                                      output_path = NULL, plot = TRUE) {
       explanations %>% map(~ {
         current_explanations <- .x
         create_cnn_explanation_plots(current_explanations)
       }) %>%
-        save_cnn_explanation_plots(combine_plots)
+        save_cnn_explanation_plots(combine_plots, output_path, plot)
     }
   ),
   private = list(
@@ -129,10 +132,13 @@ CNNexplainer <- R6::R6Class(
     #' @description Generates raster image(s) with explanations.
     #' @param explanations Explanations.
     #' @param combine_plots Should images be combined.
-    save_explanation_plots = function(explanations, combine_plots) {
+    #' @param output_path Where to save explanation plots.
+    #' @param plot Should explanation be plotted.
+    save_explanation_plots = function(explanations, combine_plots,
+                                      output_path = NULL, plot = TRUE) {
       save_cnn_explanation_plots(
         create_cnn_explanation_plots(explanations),
-        combine_plots)
+        combine_plots, output_path, plot)
     }
   ),
   private = list(
@@ -199,6 +205,13 @@ generate_cnn_explanations <- function(model, input_imgs_paths, id,
                                      class_index, patch_size)
     }
   }
-  attr(explanations, "id") <- id
-  explanations
+  list(
+    explanations = explanations,
+    metadata = list(
+      id = id,
+      target_size = target_size,
+      methods = methods,
+      n_imgs = length(input_imgs_paths)
+    )
+  )
 }

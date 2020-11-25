@@ -56,12 +56,12 @@ plot_heatmap <- function(plot_data) {
 #' @param explanations Explanations.
 #' @return Raster image(s) with explanations.
 create_cnn_explanation_plots <- function(explanations) {
-  imgs_dim <- dim(explanations$Input)
-  n_imgs <- imgs_dim[1]
-  h <- imgs_dim[2]
-  w <- imgs_dim[3]
+  imgs_dim <- explanations$metadata$target_size
+  n_imgs <- explanations$metadata$n_imgs
+  h <- imgs_dim[1]
+  w <- imgs_dim[2]
   xy_axis <- expand.grid(1:w, h:1) %>% rename(x = Var1, y = Var2)
-  explanation_plots <- explanations %>% imap(~ {
+  explanation_plots <- explanations$explanations %>% imap(~ {
     explanation_name <- .y
     current_explanation <- .x
     1:n_imgs %>% map(~ {
@@ -81,7 +81,8 @@ create_cnn_explanation_plots <- function(explanations) {
       base_plot
     })
   })
-  explanation_plots
+  list(explanation_plots = explanation_plots,
+       metadata = explanations$metadata)
 }
 
 #' Combines multimodel explanation plots.
@@ -90,17 +91,12 @@ create_cnn_explanation_plots <- function(explanations) {
 #' @param explanation_plots Explanation plots.
 #' @return Raster image(s) with explanations.
 combine_cnn_multimodel_explanation_plots <- function(explanation_plots) {
-  multimodel_explanations <- !("Input" %in% names(explanation_plots))
-  if (multimodel_explanations) {
-    n_models <- length(explanation_plots)
-    n_samples <- length(explanation_plots[[1]]$Input)
-    plots_order <- 1:n_samples %>%
-      map(~ seq(.x, n_models*n_samples, by = n_samples)) %>% unlist()
-    pmap(explanation_plots, c) %>%
-      map(~ .x[plots_order])
-  } else {
-    explanation_plots
-  }
+  n_models <- length(explanation_plots)
+  n_imgs <- explanation_plots[[1]]$metadata$n_imgs
+  plots_order <- 1:n_imgs %>%
+    map(~ seq(.x, n_models*n_imgs, by = n_imgs)) %>% unlist()
+  pmap(explanation_plots %>% map(~ .$explanation_plots), c) %>%
+    map(~ .x[plots_order])
 }
 
 #' Plots raster image(s) with explanations.
@@ -108,25 +104,109 @@ combine_cnn_multimodel_explanation_plots <- function(explanation_plots) {
 #' @importFrom gridExtra grid.arrange arrangeGrob
 #' @importFrom purrr iwalk
 #' @param explanation_plots Explanation plots.
+#' @param output_path Where to save explanation plots.
+#' @param model_name Model name.
+#' @param single_img_height Single image height.
+#' @param single_img_width Single image width.
+#' @param plot Should explanation be plotted.
+save_single_explanation_plots <- function(explanation_plots, output_path, model_name,
+                                          single_img_height, single_img_width, plot) {
+  pixel_to_cm <- 2.54 / 96
+  explanation_plots$explanation_plots %>% iwalk(~ {
+    explanation_name <- find_method_name(.y)
+    .x %>% iwalk(~ {
+      img_nr <- .y
+      final_plot <- .x + ggtitle(explanation_name) +
+        theme(plot.title = element_text(hjust = 0.5))
+      if (plot) plot(final_plot)
+      if (!is.null(output_path)) {
+        ggsave(file.path(output_path,
+                         paste0(model_name, "_", img_nr, "_",
+                                explanation_name,  ".png")),
+               plot = final_plot,
+               height = single_img_height * pixel_to_cm,
+               width = single_img_width * pixel_to_cm,
+               limitsize = FALSE, units = "cm")
+      }
+    })
+  })
+}
+
+#' Plots raster image(s) with explanations.
+#' @description Plots raster image(s) with explanations.
+#' @importFrom gridExtra grid.arrange arrangeGrob
+#' @importFrom purrr iwalk
+#' @param explanation_plots Explanation plots.
 #' @param combine_plots Should images be combined.
+#' @param output_path Where to save explanation plots.
+#' @param plot Should explanation be plotted.
 #' @export
-save_cnn_explanation_plots <- function(explanation_plots, combine_plots) {
-  if (combine_plots) {
-    explanation_plots <- combine_cnn_multimodel_explanation_plots(explanation_plots)
-    ncol <- length(explanation_plots)
-    grobs <- explanation_plots %>% imap(~ {
-      explanation_name <- find_method_name(.y)
-      arrangeGrob(grobs = .x, top = explanation_name, ncol = 1)
-    })
-    grid.arrange(grobs = grobs, ncol = ncol)
-  } else {
-    explanation_plots %>% iwalk(~ {
-      explanation_name <- find_method_name(.y)
-      .x %>% walk(~ {
-        base_plot <- .x
-        plot(base_plot + ggtitle(explanation_name) +
-               theme(plot.title = element_text(hjust = 0.5)))
+save_cnn_explanation_plots <- function(explanation_plots, combine_plots,
+                                       output_path = NULL, plot = TRUE) {
+  pixel_to_cm <- 2.54 / 96
+  multimodel_explanations <- !("metadata" %in% names(explanation_plots))
+  if (multimodel_explanations) {
+    n_models <- length(explanation_plots)
+    model_names <- explanation_plots %>% map_chr(~ .$metadata$id)
+    single_img_height <- explanation_plots %>% map_dbl(~ .$metadata$target_size[1]) %>% max()
+    single_img_width <- explanation_plots %>% map_dbl(~ .$metadata$target_size[2]) %>% max()
+    n_imgs <- explanation_plots[[1]]$metadata$n_imgs
+    if (combine_plots) {
+      explanation_plots <- combine_cnn_multimodel_explanation_plots(explanation_plots)
+      ncol <- length(explanation_plots)
+      grobs <- explanation_plots %>% imap(~ {
+        explanation_name <- find_method_name(.y)
+        arrangeGrob(grobs = .x, top = explanation_name, ncol = 1)
       })
-    })
+      final_plot <- arrangeGrob(grobs = grobs, ncol = ncol,
+                                bottom = model_names %>%
+                                  paste(collapse = ", ") %>%
+                                  paste("Models order:", .))
+      if (plot) plot(final_plot)
+      if (!is.null(output_path)) {
+        ggsave(file.path(output_path, paste0(model_names %>%
+                                               paste(collapse = "_"),
+                                             "_explanations.png")),
+               plot = final_plot,
+               height = 1.1 * n_models * n_imgs * single_img_height * pixel_to_cm,
+               width = 1.1 * single_img_width * ncol * pixel_to_cm,
+               limitsize = FALSE, units = "cm")
+      }
+    } else {
+      explanation_plots %>% walk(~ {
+        current_explanations <- .x
+        current_model_name <- current_explanations$metadata$id
+        current_single_img_height <- current_explanations$metadata$target_size[1]
+        current_single_img_width <- current_explanations$metadata$target_size[2]
+        current_explanations %>%
+          save_single_explanation_plots(output_path, current_model_name,
+                                        current_single_img_height,
+                                        current_single_img_width, plot)
+      })
+    }
+  } else {
+    model_name <- explanation_plots$metadata$id
+    single_img_height <- explanation_plots$metadata$target_size[1]
+    single_img_width <- explanation_plots$metadata$target_size[2]
+    n_imgs <- explanation_plots$metadata$n_imgs
+    if (combine_plots) {
+      ncol <- length(explanation_plots$metadata$methods) + 1
+      grobs <- explanation_plots$explanation_plots %>% imap(~ {
+        explanation_name <- find_method_name(.y)
+        arrangeGrob(grobs = .x, top = explanation_name, ncol = 1)
+      })
+      final_plot <- arrangeGrob(grobs = grobs, ncol = ncol)
+      if (plot) plot(final_plot)
+      if (!is.null(output_path)) {
+        ggsave(file.path(output_path, paste0(model_name, "_explanations.png")),
+               plot = final_plot,
+               height = 1.1 * n_imgs * single_img_height * pixel_to_cm,
+               width = 1.1 * single_img_width * ncol * pixel_to_cm,
+               limitsize = FALSE, units = "cm")
+      }
+    } else {
+      save_single_explanation_plots(explanation_plots, output_path, model_name,
+                                    single_img_height, single_img_width, plot)
+    }
   }
 }
