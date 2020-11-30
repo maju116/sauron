@@ -26,7 +26,6 @@ Creates `CNNexplainer` object.
 \item \href{#method-new}{\code{CNNexplainer$new()}}
 \item \href{#method-show_available_methods}{\code{CNNexplainer$show_available_methods()}}
 \item \href{#method-explain}{\code{CNNexplainer$explain()}}
-\item \href{#method-save_explanation_plots}{\code{CNNexplainer$save_explanation_plots()}}
 \item \href{#method-clone}{\code{CNNexplainer$clone()}}
 }
 }
@@ -105,34 +104,6 @@ Generates explanations.
 }
 \subsection{Returns}{
 Explanations for images.
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-save_explanation_plots"></a>}}
-\if{latex}{\out{\hypertarget{method-save_explanation_plots}{}}}
-\subsection{Method \code{save_explanation_plots()}}{
-Generates raster image(s) with explanations.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CNNexplainer$save_explanation_plots(
-  explanations,
-  combine_plots,
-  output_path = NULL,
-  plot = TRUE
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{explanations}}{Explanations.}
-
-\item{\code{combine_plots}}{Should images be combined.}
-
-\item{\code{output_path}}{Where to save explanation plots.}
-
-\item{\code{plot}}{Should explanation be plotted.}
-}
-\if{html}{\out{</div>}}
 }
 }
 \if{html}{\out{<hr>}}
