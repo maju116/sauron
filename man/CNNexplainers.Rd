@@ -22,7 +22,6 @@ Creates `CNNexplainers` object.
 \item \href{#method-new}{\code{CNNexplainers$new()}}
 \item \href{#method-show_available_methods}{\code{CNNexplainers$show_available_methods()}}
 \item \href{#method-explain}{\code{CNNexplainers$explain()}}
-\item \href{#method-save_explanation_plots}{\code{CNNexplainers$save_explanation_plots()}}
 \item \href{#method-clone}{\code{CNNexplainers$clone()}}
 }
 }
@@ -63,11 +62,11 @@ Generates explanations.
   input_imgs_paths,
   class_index,
   methods,
+  batch_size,
   num_samples,
   noise_sd,
   steps,
   patch_size,
-  absolute_values,
   grayscale
 )}\if{html}{\out{</div>}}
 }
@@ -81,6 +80,8 @@ Generates explanations.
 
 \item{\code{methods}}{Methods to be calculated.}
 
+\item{\code{batch_size}}{Batch size.}
+
 \item{\code{num_samples}}{Number of noised samples per one image.}
 
 \item{\code{noise_sd}}{Gaussian noise standard deviation.}
@@ -89,42 +90,12 @@ Generates explanations.
 
 \item{\code{patch_size}}{Patch size. 2-D `integer` vector.}
 
-\item{\code{absolute_values}}{Boolean. If `TRUE` absolute values of gradients will be returned.}
-
 \item{\code{grayscale}}{Boolean. Should gradients be converted from RGB to grayscale.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
 Explanations for images.
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-save_explanation_plots"></a>}}
-\if{latex}{\out{\hypertarget{method-save_explanation_plots}{}}}
-\subsection{Method \code{save_explanation_plots()}}{
-Generates raster image(s) with explanations.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CNNexplainers$save_explanation_plots(
-  explanations,
-  combine_plots,
-  output_path = NULL,
-  plot = TRUE
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{explanations}}{Explanations.}
-
-\item{\code{combine_plots}}{Should images be combined.}
-
-\item{\code{output_path}}{Where to save explanation plots.}
-
-\item{\code{plot}}{Should explanation be plotted.}
-}
-\if{html}{\out{</div>}}
 }
 }
 \if{html}{\out{<hr>}}
