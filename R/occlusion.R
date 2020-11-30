@@ -19,6 +19,7 @@ occlusion <- function(model, input_imgs, preprocessing_function = NULL,
     }
     preds <- model(input_imgs_temp)
     class_index <- tf$math$argmax(preds, axis = as.integer(1))$numpy()
+    if (length(class_index) == 1) class_index <- class_index + 1
   }
 
   n_imgs <- dim(input_imgs)[1]

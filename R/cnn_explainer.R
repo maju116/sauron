@@ -26,47 +26,34 @@ CNNexplainers <- R6::R6Class(
     #' @param input_imgs_paths Input images paths.
     #' @param class_index Class index. If set to `NULL` index with max predicted probability will be selected.
     #' @param methods Methods to be calculated.
+    #' @param batch_size Batch size.
     #' @param num_samples Number of noised samples per one image.
     #' @param noise_sd Gaussian noise standard deviation.
     #' @param steps Integration steps. Must be positive integer.
     #' @param patch_size Patch size. 2-D `integer` vector.
-    #' @param absolute_values Boolean. If `TRUE` absolute values of gradients will be returned.
     #' @param grayscale Boolean. Should gradients be converted from RGB to grayscale.
     #' @return Explanations for images.
     explain = function(input_imgs_paths,
                        class_index,
                        methods,
+                       batch_size,
                        num_samples, noise_sd,
                        steps, patch_size,
-                       absolute_values,
                        grayscale) {
       multimodel_explainations <- self$explainers %>% map(~ {
         current_explainer <- .x
         current_explainer$explain(input_imgs_paths,
                                   class_index,
                                   methods,
+                                  batch_size,
                                   num_samples, noise_sd,
                                   steps, patch_size,
-                                  absolute_values,
                                   grayscale)
       })
       for (ex in 2:length(self$explainers)) {
         multimodel_explainations[[1]]$combine(multimodel_explainations[[ex]])
       }
       multimodel_explainations[[1]]
-    },
-    #' @description Generates raster image(s) with explanations.
-    #' @param explanations Explanations.
-    #' @param combine_plots Should images be combined.
-    #' @param output_path Where to save explanation plots.
-    #' @param plot Should explanation be plotted.
-    save_explanation_plots = function(explanations, combine_plots,
-                                      output_path = NULL, plot = TRUE) {
-      explanations %>% map(~ {
-        current_explanations <- .x
-        create_cnn_explanation_plots(current_explanations)
-      }) %>%
-        save_cnn_explanation_plots(combine_plots, output_path, plot)
     }
   ),
   private = list(
@@ -110,27 +97,27 @@ CNNexplainer <- R6::R6Class(
     #' @param input_imgs_paths Input images paths.
     #' @param class_index Class index. If set to `NULL` index with max predicted probability will be selected.
     #' @param methods Methods to be calculated.
+    #' @param batch_size Batch size.
     #' @param num_samples Number of noised samples per one image.
     #' @param noise_sd Gaussian noise standard deviation.
     #' @param steps Integration steps. Must be positive integer.
     #' @param patch_size Patch size. 2-D `integer` vector.
-    #' @param absolute_values Boolean. If `TRUE` absolute values of gradients will be returned.
     #' @param grayscale Boolean. Should gradients be converted from RGB to grayscale.
     #' @return Explanations for images.
     explain = function(input_imgs_paths,
                        class_index,
                        methods,
+                       batch_size,
                        num_samples, noise_sd,
                        steps, patch_size,
-                       absolute_values,
                        grayscale) {
       generate_cnn_explanations(self$model, input_imgs_paths,
                                 self$id, self$preprocessing_function,
                                 class_index,
                                 methods,
+                                batch_size,
                                 num_samples, noise_sd,
                                 steps, patch_size,
-                                absolute_values,
                                 grayscale)
     }
   ),

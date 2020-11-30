@@ -70,11 +70,11 @@ Generates explanations.
   input_imgs_paths,
   class_index,
   methods,
+  batch_size,
   num_samples,
   noise_sd,
   steps,
   patch_size,
-  absolute_values,
   grayscale
 )}\if{html}{\out{</div>}}
 }
@@ -88,6 +88,8 @@ Generates explanations.
 
 \item{\code{methods}}{Methods to be calculated.}
 
+\item{\code{batch_size}}{Batch size.}
+
 \item{\code{num_samples}}{Number of noised samples per one image.}
 
 \item{\code{noise_sd}}{Gaussian noise standard deviation.}
@@ -95,8 +97,6 @@ Generates explanations.
 \item{\code{steps}}{Integration steps. Must be positive integer.}
 
 \item{\code{patch_size}}{Patch size. 2-D `integer` vector.}
-
-\item{\code{absolute_values}}{Boolean. If `TRUE` absolute values of gradients will be returned.}
 
 \item{\code{grayscale}}{Boolean. Should gradients be converted from RGB to grayscale.}
 }
