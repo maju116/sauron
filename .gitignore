@@ -35,3 +35,7 @@ vignettes/*.pdf
 development
 examples/data
 examples/models
+
+#XAI app datafiles
+R/xai_app/test_data
+R/xai_app/data
