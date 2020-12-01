@@ -3,6 +3,9 @@ library(reticulate)
 reticulate::use_condaenv('C:/Users/Kuba/anaconda3.7/', required = TRUE)
 
 library(sauron)
+library(tidyverse)
+library(grid)
+library(abind)
 
 #testing
 testing = TRUE

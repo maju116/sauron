@@ -43,31 +43,44 @@ shinyServer(function(input, output, session){
 
   })
 
-  observeEvent(input$image_file, {
-    file <- input$image_file
-    ext <- tools::file_ext(file$datapath)
-    input_imgs_paths = file$datapath
-    req(file)
-    #Checking the format
-    validate(need(ext == "jpg" | ext == 'jpeg', "Please upload an image file"))
-    print('TEST: Image read properly')
-    #Method set to 'GD' to cut the computation time while testing
-    model$explanations <- model$explainer$explain(input_imgs_paths, class_index = NULL,
-                                                  methods = 'GB',
-                                                  num_samples = 5, noise_sd = 0.1,
-                                                  steps = 10, patch_size = c(50, 50),
-                                                  grayscale = FALSE)
-    model$created = 1
-    print('TEST: Explainer created')
-    model$explanations$plot_and_save(TRUE, 'data/')
-  })
-
-  # output$explanation_plot <- renderCachedPlot({
-  #
+  # observeEvent(input$image_file, {
+  #   file <- input$image_file
+  #   ext <- tools::file_ext(file$datapath)
+  #   input_imgs_paths = file$datapath
+  #   req(file)
+  #   #Checking the format
+  #   validate(need(ext == "jpg" | ext == 'jpeg', "Please upload an image file"))
+  #   print('TEST: Image read properly')
+  #   #Method set to 'GD' to cut the computation time while testing
+  #   model$explanations <- model$explainer$explain(input_imgs_paths, class_index = NULL,
+  #                                                 methods = 'GB',
+  #                                                 batch_size = length(input_imgs_paths),
+  #                                                 num_samples = 5, noise_sd = 0.1,
+  #                                                 steps = 10, patch_size = c(50, 50),
+  #                                                 grayscale = FALSE)
+  #   print('TEST: Explainer created')
   #   model$explanations$plot_and_save(TRUE, 'data/')
-  #   },
-  #   cacheKeyExpr = list(input$image_file, model$explanations())
-  # )
+  # })
+
+   output$explanation_plot <- renderCachedPlot({
+     file <- input$image_file
+     ext <- tools::file_ext(file$datapath)
+     input_imgs_paths = file$datapath
+     req(file)
+     #Checking the format
+     validate(need(ext == "jpg" | ext == 'jpeg', "Please upload an image file"))
+     print('TEST: Image read properly')
+     #Method set to 'GD' to cut the computation time while testing
+     model$explanations <- model$explainer$explain(input_imgs_paths, class_index = NULL,
+                                                   methods = 'GB',
+                                                   batch_size = length(input_imgs_paths),
+                                                   num_samples = 5, noise_sd = 0.1,
+                                                   steps = 10, patch_size = c(50, 50),
+                                                   grayscale = FALSE)
+     print('TEST: Explainer created')
+     model$explanations$plot_and_save(TRUE, 'data/')},
+     cacheKeyExpr = {input$image_file}
+   )
 
   output$init_screen <- renderUI({
     if(init()){
