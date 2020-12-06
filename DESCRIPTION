@@ -24,8 +24,8 @@ Imports:
     abind (>= 1.4-5),
     progress (>= 1.2.2),
     RColorBrewer (>= 1.1-2),
-    gridExtra (>= 2.3)
-    shiny (>= 1.5.0)
+    gridExtra (>= 2.3),
+    shiny (>= 1.5.0),
     shinythemes(>= 1.1.2)
 Suggests:
     testthat,

@@ -37,5 +37,5 @@ examples/data
 examples/models
 
 #XAI app datafiles
-R/xai_app/test_data
-R/xai_app/data
+inst/shiny-examples/xai_app/test_data
+inst/shiny-examples/xai_app/data

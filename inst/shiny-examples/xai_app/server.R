@@ -8,6 +8,7 @@ shinyServer(function(input, output, session){
   #init value is used to indicate whether to display initial screen. Used later in the output$init)_screen renderUI.
   #When set to FALSE the fileInput for an image is shown.
   init = reactiveVal(TRUE)
+  first_run = reactiveVal(TRUE)
   #In model we store the loaded model (todo: list of multiple models), indicator of how many models we uploaded (for now fixed 1),
   #preprocessing function (loaded from methods list created in global.R)
   model = reactiveValues()
@@ -43,25 +44,6 @@ shinyServer(function(input, output, session){
 
   })
 
-  # observeEvent(input$image_file, {
-  #   file <- input$image_file
-  #   ext <- tools::file_ext(file$datapath)
-  #   input_imgs_paths = file$datapath
-  #   req(file)
-  #   #Checking the format
-  #   validate(need(ext == "jpg" | ext == 'jpeg', "Please upload an image file"))
-  #   print('TEST: Image read properly')
-  #   #Method set to 'GD' to cut the computation time while testing
-  #   model$explanations <- model$explainer$explain(input_imgs_paths, class_index = NULL,
-  #                                                 methods = 'GB',
-  #                                                 batch_size = length(input_imgs_paths),
-  #                                                 num_samples = 5, noise_sd = 0.1,
-  #                                                 steps = 10, patch_size = c(50, 50),
-  #                                                 grayscale = FALSE)
-  #   print('TEST: Explainer created')
-  #   model$explanations$plot_and_save(TRUE, 'data/')
-  # })
-
    output$explanation_plot <- renderCachedPlot({
      file <- input$image_file
      ext <- tools::file_ext(file$datapath)
@@ -78,8 +60,9 @@ shinyServer(function(input, output, session){
                                                    steps = 10, patch_size = c(50, 50),
                                                    grayscale = FALSE)
      print('TEST: Explainer created')
+     first_run(FALSE)
      model$explanations$plot_and_save(TRUE, 'data/')},
-     cacheKeyExpr = {input$image_file}
+     cacheKeyExpr = {list(input$image_file, init())}
    )
 
   output$init_screen <- renderUI({
@@ -142,11 +125,18 @@ shinyServer(function(input, output, session){
   })
 
   output$main_screen <- renderUI({
+     if(first_run()){
+     fluidRow(
+       uiOutput('init_screen'),
+       uiOutput('explain_specifics'),
+       #For testing
+       imageOutput('explanation_plot')
+     )
+     }
+    else{
     sidebarLayout(
       mainPanel(
-        #nothing returned for now
         imageOutput('explanation_plot')
-        #img(src = 'draft_plot.png')
       ),
       div(class = "ui grid",
           sidebarPanel(
@@ -157,6 +147,7 @@ shinyServer(function(input, output, session){
           )
       )
     )
+    }
   })
 
 

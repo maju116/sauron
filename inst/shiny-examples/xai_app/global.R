@@ -23,5 +23,6 @@ if (testing){
   }
 }
 
-preprocessing_functions = c(xception_preprocess_input, densenet_preprocess_input, function(x) x/255)
+preprocessing_functions = c(xception_preprocess_input, densenet_preprocess_input, function(x) x/(max(x) + 0.01))
 names(preprocessing_functions) = c('xception_preprocess_input', 'densenet_preprocess_input', 'rescale')
+
