@@ -15,21 +15,33 @@ shinyServer(function(input, output, session){
 
   observeEvent(input$model_file, {
     #Later it will be used when loading multiple models
-    model$uploaded = 1
     #Temp cache for a loaded file data (format, path to temp etc.)
     file <- input$model_file
     ext <- tools::file_ext(file$datapath)
+    model$name = file$name
     req(file)
-    #Format check (maybe todo: js alert when inproper format is used)
-    validate(need(ext == "h5", "Please upload a h5 file"))
-    print('TEST: Model is being loaded')
-    model$model = load_model_hdf5(file$datapath)
-    print('TEST: Model loaded succesfully')
+    model$model = list()
+    ind = 1
+    for(ex in ext){
+      #Format check (maybe todo: js alert when inproper format is used)
+      validate(need(ex == "h5", "Please upload a h5 file"))
+      print('TEST: Model is being loaded')
+      model$model[[ind]] = load_model_hdf5(file$datapath[ind])
+      print('TEST: Model loaded succesfully')
+      ind = ind + 1
+    }
   })
 
   observeEvent(input$preprocessing_method, {
     #Loading the preprocessing function
-    model$preprocessing_function = preprocessing_functions[[input$preprocessing_method]]
+    if(length(model$model) != 1){
+      model$preprocessing_function = list()
+      model$preprocessing_function[[1]] = preprocessing_functions[[input$preprocessing_method]]
+      model$preprocessing_function[[2]] = preprocessing_functions[[input$preprocessing_method_2]]
+    }
+    else{
+      model$preprocessing_function = preprocessing_functions[[input$preprocessing_method]]
+    }
   })
 
   observeEvent(input$explain, {
@@ -38,10 +50,21 @@ shinyServer(function(input, output, session){
     #Init value forces app to display the fileInput for images, used in output$init_screen
     init(FALSE)
     #The explainer creation
-    model$explainer <- CNNexplainer$new(model$model,
-                                        model$preprocessing_function,
-                                        str(input$modelId))
-
+    if(length(model$model) != 1){
+      explainers_cache = list()
+      explainers_cache[[1]] <- CNNexplainer$new(model$model[[1]],
+                                          model$preprocessing_function[[1]],
+                                          str(input$modelId))
+      explainers_cache[[2]] <- CNNexplainer$new(model$model[[2]],
+                                           model$preprocessing_function[[2]],
+                                           str(input$modelId_2))
+      model$explainer <- CNNexplainers$new(explainers_cache[[1]], explainers_cache[[2]])
+    }
+    else{
+      model$explainer <- CNNexplainer$new(model$model,
+                                          model$preprocessing_function,
+                                          str(input$modelId))
+    }
   })
 
    output$explanation_plot <- renderCachedPlot({
@@ -71,12 +94,13 @@ shinyServer(function(input, output, session){
                     actionButton(
                       inputId = 'init_explain',
                       label = 'Create explainer'),
+                    br(),
                     conditionalPanel(
                       condition = "input.init_explain",
                       fileInput(
                         inputId = 'model_file',
                         label = 'Select model to explain',
-                        multiple = FALSE,
+                        multiple = TRUE,
                         accept = NULL,
                         width = NULL,
                         buttonLabel = "Browse...",
@@ -91,7 +115,7 @@ shinyServer(function(input, output, session){
              fileInput(
                inputId = 'image_file',
                label = 'Select image to explain',
-               multiple = FALSE,
+               multiple = TRUE,
                accept = NULL,
                width = NULL,
                buttonLabel = "Browse...",
@@ -102,32 +126,80 @@ shinyServer(function(input, output, session){
 
   output$explain_specifics <- renderUI({
     if(is.null(model$model)){return(NULL)}
-    column(12,
-           selectInput(
-             inputId = 'preprocessing_method',
-             label = 'Choose preprocessing method',
-             choices = names(preprocessing_functions),
-             selected ='rescale',
-             multiple = FALSE,
-             width = NULL,
-             size = NULL
-           ),
-           textInput(
-             inputId = 'modelId',
-             label = 'Provide Your model ID',
-             value = ''
-           ),
-           actionButton(
-             inputId = 'explain',
-             label = 'Create the explainer'
-           )
-    )
+    if(length(model$model) != 1){
+      fluidPage(
+        fluidRow(
+          column(6,
+             selectInput(
+               inputId = 'preprocessing_method',
+               label = paste0('Choose preprocessing method for ', str(isolate(model$name[1]))),
+               choices = names(preprocessing_functions),
+               selected ='rescale',
+               multiple = FALSE,
+               width = NULL,
+               size = NULL
+             ),
+             textInput(
+               inputId = 'modelId',
+               label = 'Provide Your model ID',
+               value = ''
+             )
+          ),
+          column(6,
+                 selectInput(
+                   inputId = 'preprocessing_method_2',
+                   label = paste0('Choose preprocessing method for ', str(isolate(model$name[2]))),
+                   choices = names(preprocessing_functions),
+                   selected ='rescale',
+                   multiple = FALSE,
+                   width = NULL,
+                   size = NULL
+                 ),
+                 textInput(
+                   inputId = 'modelId_2',
+                   label = 'Provide Your model ID',
+                   value = ''
+                 )
+          )
+          ),
+          fluidRow(
+          actionButton(
+            inputId = 'explain',
+            label = 'Proceed'
+          )
+          )
+      )
+    }
+    else{
+      column(12,
+             selectInput(
+               inputId = 'preprocessing_method',
+               label = 'Choose preprocessing method',
+               choices = names(preprocessing_functions),
+               selected ='rescale',
+               multiple = FALSE,
+               width = NULL,
+               size = NULL
+             ),
+             textInput(
+               inputId = 'modelId',
+               label = 'Provide Your model ID',
+               value = ''
+             ),
+             actionButton(
+               inputId = 'explain',
+               label = 'Create the explainer'
+             )
+      )
+      }
   })
 
   output$main_screen <- renderUI({
      if(first_run()){
      fluidRow(
+       align = 'center',
        uiOutput('init_screen'),
+       br(),
        uiOutput('explain_specifics'),
        #For testing
        imageOutput('explanation_plot')
