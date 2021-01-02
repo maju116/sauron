@@ -24,7 +24,8 @@ Imports:
     abind (>= 1.4-5),
     progress (>= 1.2.2),
     RColorBrewer (>= 1.1-2),
-    gridExtra (>= 2.3)
+    gridExtra (>= 2.3),
+    ggnewscale (>= 0.4.4)
 Suggests:
     testthat,
     lintr,

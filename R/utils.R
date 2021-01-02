@@ -146,3 +146,12 @@ guidedRelu <- function(x) {
   }
   list(tf$nn$relu(x), grad)
 }
+
+#' Finds last Conv2D layer in the network.
+#' @description Finds last Conv2D layer in the network.
+#' @param model Tensorflow model.
+#' @return Last Conv2D layer in the network.
+find_last_conv2d_layer <- function(model) {
+  model$layers %>% keep(~ length(.$output_shape) == 4) %>%
+    rev() %>% .[[1]]
+}
