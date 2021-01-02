@@ -45,7 +45,8 @@ plot_raster <- function(plot_data, grayscale) {
 plot_heatmap <- function(plot_data) {
   ggplot(plot_data, aes(x, y, fill = confidence)) +
     theme_void() + geom_raster(hjust = 0, vjust = 0, interpolate = TRUE) +
-    scale_fill_gradient(low = "blue", high = "red")
+    scale_fill_gradientn(colours = c("#313695", "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf",
+                                     "#fee090", "#fdae61", "#f46d43", "#d73027", "#a50026"))
 }
 
 #' Generates raster image(s) with explanations.
@@ -67,7 +68,7 @@ create_cnn_explanation_plots <- function(explanations) {
     1:n_imgs %>% map(~ {
       idx <- .x
       sample_image <- current_explanation[idx, , , , drop = TRUE]
-      grayscale <- if (explanation_name != "OCC") {
+      grayscale <- if (!explanation_name %in% c("OCC", "GGC")) {
         length(dim(sample_image)) == 2
       } else {
         NA
