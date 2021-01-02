@@ -312,7 +312,6 @@ generate_cnn_explanations <- function(model, input_imgs_paths, id,
     if ("GGC" %in% methods) {
       batch_explanations[["GGC"]] <- guided_grad_cam(model, input_imgs, preprocessing_function,
                                                      class_index) %>%
-        transform_and_standarize_images(absolute_values = TRUE, grayscale = FALSE, standardize = TRUE) %>%
         sweep(., 1, apply(., 1, min), "-") %>%
         sweep(., 1, apply(., 1, max) - apply(., 1, min), "/")
       batch_explanations[["GGC"]] <- tf$image$resize(batch_explanations[["GGC"]], as.integer(dim(input_imgs)[2:3]))$numpy()

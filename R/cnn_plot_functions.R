@@ -40,11 +40,15 @@ plot_raster <- function(plot_data, grayscale) {
 #' @description Generates heatmap image.
 #' @import ggplot2
 #' @importFrom grDevices rgb gray
+#' @importFrom ggnewscale new_scale_fill
+#' @param main_data `data.frame` with `x`, `y` coordinates and color values.
+#' @param main_grayscale Should images be plotted in grayscale.
 #' @param plot_data `data.frame` with `x`, `y` coordinates and color values.
 #' @return  Heatmap image.
-plot_heatmap <- function(plot_data) {
-  ggplot(plot_data, aes(x, y, fill = confidence)) +
-    theme_void() + geom_raster(hjust = 0, vjust = 0, interpolate = TRUE) +
+plot_heatmap <- function(main_data, main_grayscale, plot_data) {
+  plot_raster(main_data, main_grayscale) +
+    new_scale_fill() + geom_raster(data = plot_data, aes(x, y, fill = confidence),
+                hjust = 0, vjust = 0, interpolate = TRUE, alpha = 0.5) +
     scale_fill_gradientn(colours = c("#313695", "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf",
                                      "#fee090", "#fdae61", "#f46d43", "#d73027", "#a50026"))
 }
@@ -77,7 +81,10 @@ create_cnn_explanation_plots <- function(explanations) {
       base_plot <- if (!is.na(grayscale)) {
         plot_raster(plot_data, grayscale)
       } else {
-        plot_heatmap(plot_data)
+        main_data <- explanations$Input[idx, , , , drop = TRUE]
+        main_grayscale <- length(dim(main_data)) == 2
+        main_data <- create_plot_data(xy_axis, main_data, main_grayscale)
+        plot_heatmap(main_data, main_grayscale, plot_data %>% left_join(main_data, by = c("x", "y")))
       }
       base_plot
     })
