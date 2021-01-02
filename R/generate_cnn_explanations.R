@@ -201,7 +201,7 @@ guided_backpropagation <- function(model, input_imgs, preprocessing_function = N
 #' @return Guided Grad-CAM for a CNN.
 #' @export
 guided_grad_cam <- function(model, input_imgs, preprocessing_function = NULL,
-                     class_index = NULL) {
+                            class_index = NULL) {
   check_class_indexes(input_imgs, class_index)
   last_conv2d <- find_last_conv2d_layer(model)
   grad_model <- keras_model(
@@ -302,18 +302,20 @@ generate_cnn_explanations <- function(model, input_imgs_paths, id,
     }
     if ("GB" %in% methods) {
       batch_explanations[["GB"]] <- guided_backpropagation(model, input_imgs, preprocessing_function,
-                                                        class_index) %>%
+                                                           class_index) %>%
         transform_and_standarize_images(absolute_values = TRUE, grayscale = grayscale, standardize = TRUE)
     }
     if ("OCC" %in% methods) {
       batch_explanations[["OCC"]] <- occlusion(model, input_imgs, preprocessing_function,
-                                           class_index, patch_size)
+                                               class_index, patch_size)
     }
     if ("GGC" %in% methods) {
       batch_explanations[["GGC"]] <- guided_grad_cam(model, input_imgs, preprocessing_function,
-                                                     class_index)$numpy() %>%
+                                                     class_index) %>%
+        transform_and_standarize_images(absolute_values = TRUE, grayscale = FALSE, standardize = TRUE) %>%
         sweep(., 1, apply(., 1, min), "-") %>%
         sweep(., 1, apply(., 1, max) - apply(., 1, min), "/")
+      batch_explanations[["GGC"]] <- tf$image$resize(batch_explanations[["GGC"]], as.integer(dim(input_imgs)[2:3]))$numpy()
     }
     batch_explanations
   }) %>% pmap(., abind, along = 1) %>% list()
