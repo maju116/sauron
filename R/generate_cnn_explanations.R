@@ -190,6 +190,50 @@ guided_backpropagation <- function(model, input_imgs, preprocessing_function = N
   gradients
 }
 
+#' Calculates Guided Grad-CAM for a CNN.
+#' @description Calculates Guided Grad-CAM for a CNN.
+#' @import tensorflow
+#' @importFrom purrr keep
+#' @param model Tensorflow model.
+#' @param input_imgs Input images if for of 4-D tensor.
+#' @param preprocessing_function Preprocessing function. Default to `NULL`.
+#' @param class_index Class index. If set to `NULL` index with max predicted probability will be selected.
+#' @return Guided Grad-CAM for a CNN.
+#' @export
+guided_grad_cam <- function(model, input_imgs, preprocessing_function = NULL,
+                     class_index = NULL) {
+  check_class_indexes(input_imgs, class_index)
+  last_conv2d <- find_last_conv2d_layer(model)
+  grad_model <- keras_model(
+    inputs = model$input,
+    outputs = list(last_conv2d$output, model$output)
+  )
+
+  if (!is.null(preprocessing_function)) {
+    input_imgs <- preprocessing_function(input_imgs)
+  }
+  images <-  tf$cast(input_imgs, tf$float32)
+  with(tf$GradientTape() %as% t, {
+    t$watch(images)
+    c_p <- grad_model(images)
+    conv_outputs <- c_p[[1]]
+    preds <- c_p[[2]]
+    top_class <- get_model_predictions_based_on_indexes(preds, class_index)
+  })
+  grads <- t$gradient(top_class, conv_outputs)
+
+  grads <- (
+    tf$cast(conv_outputs > 0, tf$float32)
+    * tf$cast(grads > 0, tf$float32)
+    * grads
+  )
+  weights <- tf$reduce_mean(grads, axis = as.integer(c(1, 2))) %>%
+    tf$expand_dims(axis = as.integer(1)) %>%
+    tf$expand_dims(axis = as.integer(1))
+  tf$reduce_sum(tf$multiply(weights, conv_outputs), axis = as.integer(-1)) %>%
+    tf$expand_dims(axis = as.integer(-1))
+}
+
 #' Generates explanations for images.
 #' @description Generates explanations for images.
 #' @import keras
@@ -264,6 +308,12 @@ generate_cnn_explanations <- function(model, input_imgs_paths, id,
     if ("OCC" %in% methods) {
       batch_explanations[["OCC"]] <- occlusion(model, input_imgs, preprocessing_function,
                                            class_index, patch_size)
+    }
+    if ("GGC" %in% methods) {
+      batch_explanations[["GGC"]] <- guided_grad_cam(model, input_imgs, preprocessing_function,
+                                                     class_index)$numpy() %>%
+        sweep(., 1, apply(., 1, min), "-") %>%
+        sweep(., 1, apply(., 1, max) - apply(., 1, min), "/")
     }
     batch_explanations
   }) %>% pmap(., abind, along = 1) %>% list()

@@ -3,14 +3,15 @@
 #' @import tibble
 #' @export
 sauron_available_methods <- tibble::tibble(
-  method = c("V", "GI", "SG", "SGI", "IG", "GB", "OCC"),
+  method = c("V", "GI", "SG", "SGI", "IG", "GB", "OCC", "GGC"),
   name = c("Vanilla gradient",
            "Gradient x Input",
            "SmoothGrad",
            "SmoothGrad x Input",
            "Integrated Gradients",
            "Guided Backpropagation",
-           "Occlusion Sensitivity"),
+           "Occlusion Sensitivity",
+           "Guided Grad-CAM"),
   network_type = "CNN"
 )
 
