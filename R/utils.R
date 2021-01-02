@@ -74,6 +74,21 @@ per_image_standardization <- function(images) {
   )
 }
 
+#' Transforms and standardizes gradients.
+#' @description Transforms and standardizes gradients.
+#' @param gradients Tensor with gradients.
+#' @param absolute_values Boolean. If `TRUE` absolute values of gradients will be returned.
+#' @param grayscale Boolean. Should gradients be converted from RGB to grayscale.
+#' @param standardize Boolean. Should gradients be standardized.
+#' @return Transformed and standardized gradients.
+#' @export
+transform_and_standarize_images <- function(gradients, absolute_values, grayscale, standardize) {
+  if (absolute_values) gradients <- tf$abs(gradients)
+  if (grayscale) gradients <- transform_rgb_images_to_grayscale(gradients)
+  if (standardize) gradients <- per_image_standardization(gradients)
+  gradients$numpy()
+}
+
 #' Generates noisy images.
 #' @description Generates noisy images.
 #' @import tensorflow
@@ -98,7 +113,6 @@ generate_noisy_images <- function(input_imgs, num_samples, noise_sd) {
 #' @param num_samples Number of noised samples per one image.
 #' @param noise_sd Gaussian noise standard deviation.
 #' @return smooth gradients for a CNN.
-#' @export
 calculate_smoothed_gradients <- function(model, input_imgs, preprocessing_function,
                                          class_index, num_samples, noise_sd) {
   noised_imgs <- generate_noisy_images(input_imgs, num_samples, noise_sd)
@@ -120,4 +134,24 @@ calculate_smoothed_gradients <- function(model, input_imgs, preprocessing_functi
                           shape = as.integer(c(-1, num_samples, dim(input_imgs)[2:4])))
   smooth_gradients <- tf$reduce_mean(gradients, axis = as.integer(1))
   smooth_gradients
+}
+
+#' Guided ReLU with custom gradient function.
+#' @description Guided ReLU with custom gradient function.
+#' @param x Layer input.
+#' @return Guided ReLU with custom gradient function.
+guidedRelu <- function(x) {
+  grad <- function(dy) {
+    tf$cast(dy > 0, tf$float32) * tf$cast(x > 0, tf$float32) * dy
+  }
+  list(tf$nn$relu(x), grad)
+}
+
+#' Finds last Conv2D layer in the network.
+#' @description Finds last Conv2D layer in the network.
+#' @param model Tensorflow model.
+#' @return Last Conv2D layer in the network.
+find_last_conv2d_layer <- function(model) {
+  model$layers %>% keep(~ length(.$output_shape) == 4) %>%
+    rev() %>% .[[1]]
 }
