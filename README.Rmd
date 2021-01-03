@@ -150,3 +150,29 @@ explanations123$plot_and_save(combine_plots = TRUE,
 )
 ```
 
+Alternatively if yo already have some `CNNexplanations` objects generated (for the same images and using same methods) you can combine them:
+
+```{r, fig.dim = c(12, 12)}
+explanations2 <- explainer2$explain(input_imgs_paths = input_imgs_paths,
+                                    class_index = NULL,
+                                    methods = c("V", "IG",  "GB", "GGC"),
+                                    steps = 10,
+                                    grayscale = FALSE
+)
+
+explanations3 <- explainer3$explain(input_imgs_paths = input_imgs_paths,
+                                    class_index = NULL,
+                                    methods = c("V", "IG",  "GB", "GGC"),
+                                    steps = 10,
+                                    grayscale = FALSE
+)
+
+explanations$combine(explanations2, explanations3)
+
+explanations$get_metadata()
+
+explanations$plot_and_save(combine_plots = TRUE,
+                           output_path = NULL,
+                           plot = TRUE
+)
+```

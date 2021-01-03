@@ -256,3 +256,63 @@ explanations123$plot_and_save(combine_plots = TRUE,
 ```
 
 ![](man/figures/README-unnamed-chunk-9-1.png)
+
+Alternatively if yo already have some `CNNexplanations` objects
+generated (for the same images and using same methods) you can combine
+them:
+
+``` r
+explanations2 <- explainer2$explain(input_imgs_paths = input_imgs_paths,
+                                    class_index = NULL,
+                                    methods = c("V", "IG",  "GB", "GGC"),
+                                    steps = 10,
+                                    grayscale = FALSE
+)
+
+explanations3 <- explainer3$explain(input_imgs_paths = input_imgs_paths,
+                                    class_index = NULL,
+                                    methods = c("V", "IG",  "GB", "GGC"),
+                                    steps = 10,
+                                    grayscale = FALSE
+)
+
+explanations$combine(explanations2, explanations3)
+
+explanations$get_metadata()
+#> $multimodel_explanations
+#> [1] TRUE
+#> 
+#> $ids
+#> [1] "imagenet_xception"    "imagenet_densenet121" "imagenet_densenet201"
+#> 
+#> $n_models
+#> [1] 3
+#> 
+#> $target_sizes
+#> $target_sizes[[1]]
+#> [1] 299 299   3
+#> 
+#> $target_sizes[[2]]
+#> [1] 224 224   3
+#> 
+#> $target_sizes[[3]]
+#> [1] 224 224   3
+#> 
+#> 
+#> $methods
+#> [1] "V"   "IG"  "GB"  "GGC"
+#> 
+#> $input_imgs_paths
+#> [1] "/home/maju116/R/x86_64-pc-linux-gnu-library/4.0/sauron/extdata/images/cat.jpeg"  
+#> [2] "/home/maju116/R/x86_64-pc-linux-gnu-library/4.0/sauron/extdata/images/zebras.jpg"
+#> 
+#> $n_imgs
+#> [1] 2
+
+explanations$plot_and_save(combine_plots = TRUE,
+                           output_path = NULL,
+                           plot = TRUE
+)
+```
+
+![](man/figures/README-unnamed-chunk-10-1.png)
