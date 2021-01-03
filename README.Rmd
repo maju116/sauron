@@ -90,7 +90,7 @@ input_imgs_paths <- list.files(system.file("extdata", "images", package = "sauro
 
 explanations <- explainer$explain(input_imgs_paths = input_imgs_paths,
                                   class_index = NULL,
-                                  methods = c("IG",  "GB", "GGC"),
+                                  methods = c("V", "IG",  "GB", "GGC"),
                                   steps = 10, # Number of Integrated Gradients steps
                                   grayscale = FALSE # RGB or Gray gradients
 )
@@ -109,9 +109,44 @@ str(raw_explanations)
 
 To visualize and save generated explanations use:
 
-```{r}
+```{r, fig.dim = c(12, 6)}
 explanations$plot_and_save(combine_plots = TRUE, # Show all explanations side by side on one image?
                            output_path = NULL, # Where to save output(s)
-                           plot = TRUE) # Should output be plotted?
+                           plot = TRUE # Should output be plotted?
+)
+```
+
+If you want to compare two or more different models you can do it by combining `CNNexplainer` objects into `CNNexplainers` object:
+
+```{r, fig.dim = c(12, 12)}
+model2 <- application_densenet121()
+preprocessing_function2 <- densenet_preprocess_input
+
+explainer2 <- CNNexplainer$new(model = model2,
+                               preprocessing_function = preprocessing_function2,
+                               id = "imagenet_densenet121")
+
+model3 <- application_densenet201()
+preprocessing_function3 <- densenet_preprocess_input
+
+explainer3 <- CNNexplainer$new(model = model3,
+                               preprocessing_function = preprocessing_function3,
+                               id = "imagenet_densenet201")
+
+explainers <- CNNexplainers$new(explainer, explainer2, explainer3)
+
+explanations123 <- explainers$explain(input_imgs_paths = input_imgs_paths,
+                                      class_index = NULL,
+                                      methods = c("V", "IG",  "GB", "GGC"),
+                                      steps = 10,
+                                      grayscale = FALSE
+)
+
+explanations123$get_metadata()
+
+explanations123$plot_and_save(combine_plots = TRUE,
+                              output_path = NULL,
+                              plot = TRUE
+)
 ```
 

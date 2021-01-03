@@ -106,7 +106,7 @@ input_imgs_paths <- list.files(system.file("extdata", "images", package = "sauro
 
 explanations <- explainer$explain(input_imgs_paths = input_imgs_paths,
                                   class_index = NULL,
-                                  methods = c("IG",  "GB", "GGC"),
+                                  methods = c("V", "IG",  "GB", "GGC"),
                                   steps = 10, # Number of Integrated Gradients steps
                                   grayscale = FALSE # RGB or Gray gradients
 )
@@ -135,7 +135,7 @@ explanations$get_metadata()
 #> 
 #> 
 #> $methods
-#> [1] "IG"  "GB"  "GGC"
+#> [1] "V"   "IG"  "GB"  "GGC"
 #> 
 #> $input_imgs_paths
 #> [1] "/home/maju116/R/x86_64-pc-linux-gnu-library/4.0/sauron/extdata/images/cat.jpeg"  
@@ -147,8 +147,14 @@ explanations$get_metadata()
 raw_explanations <- explanations$get_explanations()
 str(raw_explanations)
 #> List of 1
-#>  $ imagenet_xception:List of 4
+#>  $ imagenet_xception:List of 5
 #>   ..$ Input: num [1:2, 1:299, 1:299, 1:3] 134 170 134 168 134 170 135 168 135 167 ...
+#>   .. ..- attr(*, "dimnames")=List of 4
+#>   .. .. ..$ : NULL
+#>   .. .. ..$ : NULL
+#>   .. .. ..$ : NULL
+#>   .. .. ..$ : NULL
+#>   ..$ V    : int [1:2, 1:299, 1:299, 1:3] 0 0 0 0 0 0 0 0 0 0 ...
 #>   .. ..- attr(*, "dimnames")=List of 4
 #>   .. .. ..$ : NULL
 #>   .. .. ..$ : NULL
@@ -179,7 +185,74 @@ To visualize and save generated explanations use:
 ``` r
 explanations$plot_and_save(combine_plots = TRUE, # Show all explanations side by side on one image?
                            output_path = NULL, # Where to save output(s)
-                           plot = TRUE) # Should outpu be plotted?
+                           plot = TRUE # Should output be plotted?
+)
 ```
 
 ![](man/figures/README-unnamed-chunk-8-1.png)
+
+If you want to compare two or more different models you can do it by
+combining `CNNexplainer` objects into `CNNexplainers` object:
+
+``` r
+model2 <- application_densenet121()
+preprocessing_function2 <- densenet_preprocess_input
+
+explainer2 <- CNNexplainer$new(model = model2,
+                               preprocessing_function = preprocessing_function2,
+                               id = "imagenet_densenet121")
+
+model3 <- application_densenet201()
+preprocessing_function3 <- densenet_preprocess_input
+
+explainer3 <- CNNexplainer$new(model = model3,
+                               preprocessing_function = preprocessing_function3,
+                               id = "imagenet_densenet201")
+
+explainers <- CNNexplainers$new(explainer, explainer2, explainer3)
+
+explanations123 <- explainers$explain(input_imgs_paths = input_imgs_paths,
+                                      class_index = NULL,
+                                      methods = c("V", "IG",  "GB", "GGC"),
+                                      steps = 10,
+                                      grayscale = FALSE
+)
+
+explanations123$get_metadata()
+#> $multimodel_explanations
+#> [1] TRUE
+#> 
+#> $ids
+#> [1] "imagenet_xception"    "imagenet_densenet121" "imagenet_densenet201"
+#> 
+#> $n_models
+#> [1] 3
+#> 
+#> $target_sizes
+#> $target_sizes[[1]]
+#> [1] 299 299   3
+#> 
+#> $target_sizes[[2]]
+#> [1] 224 224   3
+#> 
+#> $target_sizes[[3]]
+#> [1] 224 224   3
+#> 
+#> 
+#> $methods
+#> [1] "V"   "IG"  "GB"  "GGC"
+#> 
+#> $input_imgs_paths
+#> [1] "/home/maju116/R/x86_64-pc-linux-gnu-library/4.0/sauron/extdata/images/cat.jpeg"  
+#> [2] "/home/maju116/R/x86_64-pc-linux-gnu-library/4.0/sauron/extdata/images/zebras.jpg"
+#> 
+#> $n_imgs
+#> [1] 2
+
+explanations123$plot_and_save(combine_plots = TRUE,
+                              output_path = NULL,
+                              plot = TRUE
+)
+```
+
+![](man/figures/README-unnamed-chunk-9-1.png)
