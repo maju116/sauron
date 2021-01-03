@@ -60,14 +60,14 @@ Generates explanations.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CNNexplainers$explain(
   input_imgs_paths,
-  class_index,
-  methods,
-  batch_size,
-  num_samples,
-  noise_sd,
-  steps,
-  patch_size,
-  grayscale
+  class_index = NULL,
+  methods = c("V", "GI", "SG", "SGI", "IG", "GB", "OCC"),
+  batch_size = length(input_imgs_paths),
+  num_samples = 5,
+  noise_sd = 0.1,
+  steps = 20,
+  patch_size = c(50, 50),
+  grayscale = TRUE
 )}\if{html}{\out{</div>}}
 }
 

@@ -1,0 +1,117 @@
+---
+output:
+ md_document:
+  variant: markdown_github
+params:
+  repo_name: sauron
+  repo_url: https://github.com/maju116/sauron
+  chagelog_url: https://github.com/maju116/sauron/blob/main/CHANGELOG.md
+  code_of_coduct: https://github.com/maju116/sauron/blob/main/CODE_OF_CONDUCT.md
+---
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-"
+)
+```
+
+<img src="man/figures/hexsticker_sauron.png" align="right" alt="" width="130" />
+
+#  `r params$repo_name`
+
+<!-- badges: start -->
+[![codecov](https://codecov.io/gh/maju116/sauron/branch/main/graph/badge.svg)](https://codecov.io/gh/maju116/sauron)
+<!-- badges: end -->
+
+**Explainable Artificial Intelligence (XAI) for Neutral Networks in tensorflow/keras.**
+
+With `sauron` you can use Explainable Artificial Intelligence (XAI) methods to understand predictions made by Neural Networks in `tensorflow/keras`. For the time being only Convolutional Neural Networks are supported, but it will change in time.
+
+How to install?
+---------------
+
+You can install the latest version of `sauron` with `remotes`:
+
+```{r, eval=FALSE}
+remotes::install_github("maju116/sauron")
+```
+
+(`main` branch contains the stable version. Use `develop` branch for latest features)
+
+To install [previous versions](`r params$changelog_url`) you can run:
+
+```{r, eval=FALSE}
+remotes::install_github("maju116/sauron", ref = "0.1.0")
+```
+
+In order to install `sauron` you need to install `keras` and `tensorflow` packages and `Tensorflow` version `>= 2.0.0` (`Tensorflow 1.x` will not be supported!)
+
+How to use it?
+---------------
+
+To generate any explanations you will have to create an object of class `CNNexplainer`. To do this you will need two things:
+
+- tensorflow/keras model
+- image preprocessing function (optional)
+
+```{r, message = FALSE}
+library(tidyverse)
+library(sauron)
+
+model <- application_xception()
+preprocessing_function <- xception_preprocess_input
+
+explainer <- CNNexplainer$new(model = model,
+                              preprocessing_function = preprocessing_function,
+                              id = "imagenet_xception")
+explainer
+```
+
+To see available XAI methods for the `CNNexplainer` object use:
+
+```{r}
+explainer$show_available_methods()
+```
+
+Now you can explain predictions using `explain` method. You will need:
+
+- paths to the images for which you want to generate explanations.
+- class indexes for which the explanations should be generated (optional, if set to `NULL` class that maximizes predicted probability will be found for each image).
+- character vector with method names (optional, by default explainer will use all methods).
+- batch size (optional, by default number of inserted images).
+- additional arguments with settings for a specific method (optional).
+
+As an output you will get an object of class `CNNexplanations`:
+
+```{r, message = FALSE}
+input_imgs_paths <- list.files(system.file("extdata", "images", package = "sauron"), full.names = TRUE)
+
+explanations <- explainer$explain(input_imgs_paths = input_imgs_paths,
+                                  class_index = NULL,
+                                  methods = c("IG",  "GB", "GGC"),
+                                  steps = 10, # Number of Integrated Gradients steps
+                                  grayscale = FALSE # RGB or Gray gradients
+)
+
+explanations
+```
+
+You can get raw explanations and metadata from `CNNexplanations` object using:
+
+```{r}
+explanations$get_metadata()
+
+raw_explanations <- explanations$get_explanations()
+str(raw_explanations)
+```
+
+To visualize and save generated explanations use:
+
+```{r}
+explanations$plot_and_save(combine_plots = TRUE, # Show all explanations side by side on one image?
+                           output_path = NULL, # Where to save output(s)
+                           plot = TRUE) # Should output be plotted?
+```
+
