@@ -257,7 +257,7 @@ explanations123$plot_and_save(combine_plots = TRUE,
 
 ![](man/figures/README-unnamed-chunk-9-1.png)
 
-Alternatively if yo already have some `CNNexplanations` objects
+Alternatively if you already have some `CNNexplanations` objects
 generated (for the same images and using same methods) you can combine
 them:
 
