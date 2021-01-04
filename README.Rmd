@@ -90,6 +90,7 @@ input_imgs_paths <- list.files(system.file("extdata", "images", package = "sauro
 
 explanations <- explainer$explain(input_imgs_paths = input_imgs_paths,
                                   class_index = NULL,
+                                  batch_size = 1,
                                   methods = c("V", "IG",  "GB", "GGC"),
                                   steps = 10, # Number of Integrated Gradients steps
                                   grayscale = FALSE # RGB or Gray gradients
@@ -137,6 +138,7 @@ explainers <- CNNexplainers$new(explainer, explainer2, explainer3)
 
 explanations123 <- explainers$explain(input_imgs_paths = input_imgs_paths,
                                       class_index = NULL,
+                                      batch_size = 1,
                                       methods = c("V", "IG",  "GB", "GGC"),
                                       steps = 10,
                                       grayscale = FALSE
@@ -155,6 +157,7 @@ Alternatively if you already have some `CNNexplanations` objects generated (for 
 ```{r, fig.dim = c(12, 12)}
 explanations2 <- explainer2$explain(input_imgs_paths = input_imgs_paths,
                                     class_index = NULL,
+                                    batch_size = 1,
                                     methods = c("V", "IG",  "GB", "GGC"),
                                     steps = 10,
                                     grayscale = FALSE
@@ -162,6 +165,7 @@ explanations2 <- explainer2$explain(input_imgs_paths = input_imgs_paths,
 
 explanations3 <- explainer3$explain(input_imgs_paths = input_imgs_paths,
                                     class_index = NULL,
+                                    batch_size = 1,
                                     methods = c("V", "IG",  "GB", "GGC"),
                                     steps = 10,
                                     grayscale = FALSE

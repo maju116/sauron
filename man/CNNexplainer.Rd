@@ -69,7 +69,7 @@ Generates explanations.
 \if{html}{\out{<div class="r">}}\preformatted{CNNexplainer$explain(
   input_imgs_paths,
   class_index = NULL,
-  methods = c("V", "GI", "SG", "SGI", "IG", "GB", "OCC"),
+  methods = c("V", "GI", "SG", "SGI", "IG", "GB", "OCC", "GGC"),
   batch_size = length(input_imgs_paths),
   num_samples = 5,
   noise_sd = 0.1,

@@ -106,13 +106,14 @@ input_imgs_paths <- list.files(system.file("extdata", "images", package = "sauro
 
 explanations <- explainer$explain(input_imgs_paths = input_imgs_paths,
                                   class_index = NULL,
+                                  batch_size = 1,
                                   methods = c("V", "IG",  "GB", "GGC"),
                                   steps = 10, # Number of Integrated Gradients steps
                                   grayscale = FALSE # RGB or Gray gradients
 )
 
 explanations
-#> CNNexplanations object contains explanations for 2 images for 1 model.
+#> CNNexplanations object contains explanations for 3 images for 1 model.
 ```
 
 You can get raw explanations and metadata from `CNNexplanations` object
@@ -138,41 +139,42 @@ explanations$get_metadata()
 #> [1] "V"   "IG"  "GB"  "GGC"
 #> 
 #> $input_imgs_paths
-#> [1] "/home/maju116/R/x86_64-pc-linux-gnu-library/4.0/sauron/extdata/images/cat.jpeg"  
-#> [2] "/home/maju116/R/x86_64-pc-linux-gnu-library/4.0/sauron/extdata/images/zebras.jpg"
+#> [1] "/home/maju116/R/x86_64-pc-linux-gnu-library/4.0/sauron/extdata/images/cat_and_dog.jpg"
+#> [2] "/home/maju116/R/x86_64-pc-linux-gnu-library/4.0/sauron/extdata/images/cat.jpeg"       
+#> [3] "/home/maju116/R/x86_64-pc-linux-gnu-library/4.0/sauron/extdata/images/zebras.jpg"     
 #> 
 #> $n_imgs
-#> [1] 2
+#> [1] 3
 
 raw_explanations <- explanations$get_explanations()
 str(raw_explanations)
 #> List of 1
 #>  $ imagenet_xception:List of 5
-#>   ..$ Input: num [1:2, 1:299, 1:299, 1:3] 134 170 134 168 134 170 135 168 135 167 ...
+#>   ..$ Input: num [1:3, 1:299, 1:299, 1:3] 147 134 170 147 134 168 144 134 170 144 ...
 #>   .. ..- attr(*, "dimnames")=List of 4
 #>   .. .. ..$ : NULL
 #>   .. .. ..$ : NULL
 #>   .. .. ..$ : NULL
 #>   .. .. ..$ : NULL
-#>   ..$ V    : int [1:2, 1:299, 1:299, 1:3] 0 0 0 0 0 0 0 0 0 0 ...
+#>   ..$ V    : int [1:3, 1:299, 1:299, 1:3] 0 0 0 0 0 0 0 0 0 0 ...
 #>   .. ..- attr(*, "dimnames")=List of 4
 #>   .. .. ..$ : NULL
 #>   .. .. ..$ : NULL
 #>   .. .. ..$ : NULL
 #>   .. .. ..$ : NULL
-#>   ..$ IG   : int [1:2, 1:299, 1:299, 1:3] 0 0 0 0 0 0 0 0 0 0 ...
+#>   ..$ IG   : int [1:3, 1:299, 1:299, 1:3] 0 0 0 0 0 0 0 0 0 0 ...
 #>   .. ..- attr(*, "dimnames")=List of 4
 #>   .. .. ..$ : NULL
 #>   .. .. ..$ : NULL
 #>   .. .. ..$ : NULL
 #>   .. .. ..$ : NULL
-#>   ..$ GB   : int [1:2, 1:299, 1:299, 1:3] 0 2 0 111 0 28 0 151 0 231 ...
+#>   ..$ GB   : int [1:3, 1:299, 1:299, 1:3] 0 0 2 0 0 111 0 0 28 0 ...
 #>   .. ..- attr(*, "dimnames")=List of 4
 #>   .. .. ..$ : NULL
 #>   .. .. ..$ : NULL
 #>   .. .. ..$ : NULL
 #>   .. .. ..$ : NULL
-#>   ..$ GGC  : num [1:2, 1:299, 1:299, 1] 0 0.000455 0 0.000455 0 ...
+#>   ..$ GGC  : num [1:3, 1:299, 1:299, 1] 7.13e-05 0.00 4.55e-04 7.13e-05 0.00 ...
 #>   .. ..- attr(*, "dimnames")=List of 4
 #>   .. .. ..$ : NULL
 #>   .. .. ..$ : NULL
@@ -213,6 +215,7 @@ explainers <- CNNexplainers$new(explainer, explainer2, explainer3)
 
 explanations123 <- explainers$explain(input_imgs_paths = input_imgs_paths,
                                       class_index = NULL,
+                                      batch_size = 1,
                                       methods = c("V", "IG",  "GB", "GGC"),
                                       steps = 10,
                                       grayscale = FALSE
@@ -243,11 +246,12 @@ explanations123$get_metadata()
 #> [1] "V"   "IG"  "GB"  "GGC"
 #> 
 #> $input_imgs_paths
-#> [1] "/home/maju116/R/x86_64-pc-linux-gnu-library/4.0/sauron/extdata/images/cat.jpeg"  
-#> [2] "/home/maju116/R/x86_64-pc-linux-gnu-library/4.0/sauron/extdata/images/zebras.jpg"
+#> [1] "/home/maju116/R/x86_64-pc-linux-gnu-library/4.0/sauron/extdata/images/cat_and_dog.jpg"
+#> [2] "/home/maju116/R/x86_64-pc-linux-gnu-library/4.0/sauron/extdata/images/cat.jpeg"       
+#> [3] "/home/maju116/R/x86_64-pc-linux-gnu-library/4.0/sauron/extdata/images/zebras.jpg"     
 #> 
 #> $n_imgs
-#> [1] 2
+#> [1] 3
 
 explanations123$plot_and_save(combine_plots = TRUE,
                               output_path = NULL,
@@ -264,6 +268,7 @@ them:
 ``` r
 explanations2 <- explainer2$explain(input_imgs_paths = input_imgs_paths,
                                     class_index = NULL,
+                                    batch_size = 1,
                                     methods = c("V", "IG",  "GB", "GGC"),
                                     steps = 10,
                                     grayscale = FALSE
@@ -271,6 +276,7 @@ explanations2 <- explainer2$explain(input_imgs_paths = input_imgs_paths,
 
 explanations3 <- explainer3$explain(input_imgs_paths = input_imgs_paths,
                                     class_index = NULL,
+                                    batch_size = 1,
                                     methods = c("V", "IG",  "GB", "GGC"),
                                     steps = 10,
                                     grayscale = FALSE
@@ -303,11 +309,12 @@ explanations$get_metadata()
 #> [1] "V"   "IG"  "GB"  "GGC"
 #> 
 #> $input_imgs_paths
-#> [1] "/home/maju116/R/x86_64-pc-linux-gnu-library/4.0/sauron/extdata/images/cat.jpeg"  
-#> [2] "/home/maju116/R/x86_64-pc-linux-gnu-library/4.0/sauron/extdata/images/zebras.jpg"
+#> [1] "/home/maju116/R/x86_64-pc-linux-gnu-library/4.0/sauron/extdata/images/cat_and_dog.jpg"
+#> [2] "/home/maju116/R/x86_64-pc-linux-gnu-library/4.0/sauron/extdata/images/cat.jpeg"       
+#> [3] "/home/maju116/R/x86_64-pc-linux-gnu-library/4.0/sauron/extdata/images/zebras.jpg"     
 #> 
 #> $n_imgs
-#> [1] 2
+#> [1] 3
 
 explanations$plot_and_save(combine_plots = TRUE,
                            output_path = NULL,
