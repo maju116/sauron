@@ -97,7 +97,7 @@ integrated_gradients <- function(model, input_imgs, preprocessing_function = NUL
     class_index <- rep(class_index, each = steps + 1)
   } else if (is.null(class_index)) {
     preds <- model(tf$cast(input_imgs, tf$float32))
-    class_index <- tf$argmax(preds, axis = as.integer(1))$numpy()
+    class_index <- tf$argmax(preds, axis = as.integer(1))$numpy() + 1
     class_index <- rep(class_index, each = steps + 1)
   }
 
@@ -254,7 +254,7 @@ guided_grad_cam <- function(model, input_imgs, preprocessing_function = NULL,
 generate_cnn_explanations <- function(model, input_imgs_paths, id,
                                       preprocessing_function = NULL,
                                       class_index = NULL,
-                                      methods = c("V", "GI", "SG", "SGI", "IG", "GB", "OCC"),
+                                      methods = c("V", "GI", "SG", "SGI", "IG", "GB", "OCC", "GGC"),
                                       batch_size = length(input_imgs_paths),
                                       num_samples = 5, noise_sd = 0.1,
                                       steps = 20, patch_size = c(50, 50),

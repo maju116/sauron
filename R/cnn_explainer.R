@@ -34,12 +34,12 @@ CNNexplainers <- R6::R6Class(
     #' @param grayscale Boolean. Should gradients be converted from RGB to grayscale.
     #' @return Explanations for images.
     explain = function(input_imgs_paths,
-                       class_index,
-                       methods,
-                       batch_size,
-                       num_samples, noise_sd,
-                       steps, patch_size,
-                       grayscale) {
+                       class_index = NULL,
+                       methods = c("V", "GI", "SG", "SGI", "IG", "GB", "OCC", "GGC"),
+                       batch_size = length(input_imgs_paths),
+                       num_samples = 5, noise_sd = 0.1,
+                       steps = 20, patch_size = c(50, 50),
+                       grayscale = TRUE) {
       multimodel_explainations <- self$explainers %>% map(~ {
         current_explainer <- .x
         current_explainer$explain(input_imgs_paths,
@@ -105,12 +105,12 @@ CNNexplainer <- R6::R6Class(
     #' @param grayscale Boolean. Should gradients be converted from RGB to grayscale.
     #' @return Explanations for images.
     explain = function(input_imgs_paths,
-                       class_index,
-                       methods,
-                       batch_size,
-                       num_samples, noise_sd,
-                       steps, patch_size,
-                       grayscale) {
+                       class_index = NULL,
+                       methods = c("V", "GI", "SG", "SGI", "IG", "GB", "OCC", "GGC"),
+                       batch_size = length(input_imgs_paths),
+                       num_samples = 5, noise_sd = 0.1,
+                       steps = 20, patch_size = c(50, 50),
+                       grayscale = TRUE) {
       generate_cnn_explanations(self$model, input_imgs_paths,
                                 self$id, self$preprocessing_function,
                                 class_index,

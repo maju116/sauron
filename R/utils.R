@@ -25,7 +25,7 @@ get_model_predictions_based_on_indexes <- function(preds, class_index) {
     top_class <- preds[ , class_index]
   } else {
     n_imgs <- preds$get_shape()$as_list()[1]
-    class_index <- cbind(as.integer(0:(n_imgs - 1)), as.integer(class_index))
+    class_index <- cbind(as.integer(0:(n_imgs - 1)), as.integer(class_index - 1))
     top_class <- tf$gather_nd(preds, class_index)
   }
   top_class
@@ -125,7 +125,7 @@ calculate_smoothed_gradients <- function(model, input_imgs, preprocessing_functi
     class_index <- rep(class_index, each = num_samples)
   } else if (is.null(class_index)) {
     preds <- model(tf$cast(input_imgs, tf$float32))
-    class_index <- tf$argmax(preds, axis = as.integer(1))$numpy()
+    class_index <- tf$argmax(preds, axis = as.integer(1))$numpy() + 1
     class_index <- rep(class_index, each = num_samples)
   }
 
@@ -152,6 +152,13 @@ guidedRelu <- function(x) {
 #' @param model Tensorflow model.
 #' @return Last Conv2D layer in the network.
 find_last_conv2d_layer <- function(model) {
-  model$layers %>% keep(~ length(.$output_shape) == 4) %>%
+  model_layers <- model$layers %>% map(~ {
+    if ("keras.engine.training.Model" %in% class(.x)) {
+      .x$layers
+    } else {
+      .x
+    }
+  })
+  model_layers %>% unlist() %>% keep(~ length(.$output_shape) == 4) %>%
     rev() %>% .[[1]]
 }
