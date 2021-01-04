@@ -1,17 +1,9 @@
----
-title: "Skin Cancer"
-author: "Michał Maj"
-date: "1/03/2021"
-output:
- md_document:
-  variant: markdown_github
----
-
-Download images: [Skin Cancer dataset](https://www.kaggle.com/fanconic/skin-cancer-malignant-vs-benign).
+Download images: [Skin Cancer
+dataset](https://www.kaggle.com/fanconic/skin-cancer-malignant-vs-benign).
 
 Build Convolutional Neural Network(s) for skin cancer classification:
 
-```{r, message = FALSE, warning = FALSE}
+``` r
 library(tidyverse)
 library(sauron)
 library(here)
@@ -23,8 +15,7 @@ train_path <- file.path(skin_cancer_path, "train/")
 test_path <- file.path(skin_cancer_path, "test/")
 ```
 
-
-```{r, eval = FALSE}
+``` r
 train_datagen <- image_data_generator(
   rescale = 1/255,
   rotation_range = 10,
@@ -94,9 +85,10 @@ history <- skin_cancer_model %>% fit_generator(
 )
 ```
 
-Now we can explore and explain some of the predictions. First step is to create an explainer:
+Now we can explore and explain some of the predictions. First step is to
+create an explainer:
 
-```{r}
+``` r
 skin_cancer_model <- load_model_hdf5(file.path(models_path, "skin_cancer.h5"))
 
 image_scale <- function(image) image / 255
@@ -110,9 +102,21 @@ skin_cancer_explainer <- CNNexplainer$new(
 skin_cancer_explainer$show_available_methods()
 ```
 
-Let's take a look at some test images:
+    ## # A tibble: 8 x 2
+    ##   method name                  
+    ##   <chr>  <chr>                 
+    ## 1 V      Vanilla gradient      
+    ## 2 GI     Gradient x Input      
+    ## 3 SG     SmoothGrad            
+    ## 4 SGI    SmoothGrad x Input    
+    ## 5 IG     Integrated Gradients  
+    ## 6 GB     Guided Backpropagation
+    ## 7 OCC    Occlusion Sensitivity 
+    ## 8 GGC    Guided Grad-CAM
 
-```{r, fig.dim = c(12, 20)}
+Let’s take a look at some test images:
+
+``` r
 set.seed(1234)
 sample_test_images <- sample(list.files(test_path, full.names = TRUE, recursive = TRUE), 10)
 
@@ -128,10 +132,25 @@ test_predictions <- predict(skin_cancer_model, image_scale(test_explanations$get
   mutate(malignant = grepl("malignant", sample_test_images))
 
 test_predictions
+```
 
+    ##    malignant_probability malignant
+    ## 1           0.3019230664     FALSE
+    ## 2           0.6327537894     FALSE
+    ## 3           0.9552918673      TRUE
+    ## 4           0.9418284297      TRUE
+    ## 5           0.9997642636      TRUE
+    ## 6           0.0003123278     FALSE
+    ## 7           0.0025081602     FALSE
+    ## 8           0.9999947548      TRUE
+    ## 9           0.3534385562     FALSE
+    ## 10          0.0102499994     FALSE
+
+``` r
 test_explanations$plot_and_save(combine_plots = TRUE,
                            output_path = NULL,
                            plot = TRUE
 )
 ```
 
+![](Skin-Cancer_files/figure-markdown_github/unnamed-chunk-4-1.png)
